@@ -25,7 +25,7 @@ class Schedule:
 
     def make_random(self, machines, jobs):
         for i in range(jobs):
-            self.joblist.append(Job([randint(1, 9) for j in range(machines)]))
+            self.joblist.append(Job([randint(1, 9) for j in range(machines)], name=("zadanie " + str(i))))
 
     def __str__(self):
         string = ""
