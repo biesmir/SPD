@@ -27,3 +27,8 @@ class Schedule:
         for i in range(jobs):
             self.joblist.append(Job([randint(1, 9) for j in range(machines)]))
 
+    def __str__(self):
+        string = ""
+        for i in self.joblist:
+            string += i.__str__() + "\n"
+        return string
