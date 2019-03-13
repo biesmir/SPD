@@ -4,11 +4,14 @@ from job import Job
 class Schedule:
     """Klasa przechowująca informacje o kolejności wykonywania zadań"""
 
-    def __init__(self, joblist, number_of_jobs, number_of_machines, name="bez nazwy"):
+    def __init__(self, joblist = [], name="bez nazwy"):
         self.name = name
         self.joblist = joblist
-        self.number_of_jobs = number_of_jobs
-        self.number_of_machines = number_of_machines
+        self.number_of_jobs = len(joblist)
+        if self.number_of_jobs != 0:
+            self.number_of_machines = len(joblist[0].time)
+        else:
+            self.number_of_machines = 0
 
     def cmax(self):
         return self.cpi(self.number_of_jobs - 1, self.number_of_machines -1)
@@ -26,6 +29,8 @@ class Schedule:
     def make_random(self, jobs, machines):
         for i in range(jobs):
             self.joblist.append(Job([randint(1, 9) for j in range(machines)], name=("zadanie " + str(i))))
+        self.number_of_jobs = jobs
+        self.number_of_machines = machines
 
     def __str__(self):
         string = ""
@@ -36,10 +41,21 @@ class Schedule:
     def jonson(self):
         if self.number_of_machines == 2:
             self.joblist.sort()
-            "tu wstaw algorytm Jonsona"
+            #algorytm Jonsona
 
         else:
             print("brak algorytmu dla tej liczby maszyn")
             return
+
+    def load_from_file(self, file_name):
+        with open(file_name) as file:
+            line = file.readline()
+            line = list(map(int, line.split()))
+            self.number_of_jobs = line[0]
+            self.number_of_machines = line[1]
+
+            for i, line in enumerate(file.readlines()):
+                self.joblist.append(Job(list(map(int, line.split())), name="zadanie"+str(i+1)))
+                # print(list(map(int, line.split())))
 
 
