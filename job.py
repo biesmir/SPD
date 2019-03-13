@@ -11,4 +11,19 @@ class Job:
         return line
 
     def __repr__(self):
-         return self.name
+        return self.name
+
+    def __le__(self, second):
+        if self.time[0] <= second.time[0] & self.time[0] <= second.time[1]:
+            return True
+        if self.time[1] <= second.time[0] & self.time[1] <= second.time[1]:
+            return True
+        else:
+            return False
+
+    def __lt__(self, second):
+        if self.time[0] < second.time[0] and self.time[0] < second.time[1] or \
+         self.time[1] < second.time[0] and self.time[1] < second.time[1]:
+            return True
+        else:
+            return False

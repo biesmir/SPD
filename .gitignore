@@ -14,3 +14,5 @@
 __pycache__/job\.cpython-37\.pyc
 
 __pycache__/schedule\.cpython-37\.pyc
+
+main\.py
