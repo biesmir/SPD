@@ -29,7 +29,7 @@ class Schedule:
 
     def make_random(self, jobs, machines):
         for i in range(jobs):
-            self.joblist.append(Job([randint(1, 5) for j in range(machines)], index=i, name=("zadanie " + str(i+1))))
+            self.joblist.append(Job([randint(1, 9) for j in range(machines)], index=i, name=("zadanie " + str(i+1))))
         self.number_of_jobs = jobs
         self.number_of_machines = machines
 
@@ -67,7 +67,6 @@ class Schedule:
                     sequence1.append(self.joblist[job.index])
                 else:
                     sequence2.append(self.joblist[job.index])
-
 
             self.joblist = sequence1 + list(reversed(sequence2))
 
