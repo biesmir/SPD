@@ -1,8 +1,9 @@
 class Job:
 
-    def __init__(self, time, name="zadanie"):
+    def __init__(self, time, index, name="zadanie"):
         self.time = tuple(time)
         self.name = name
+        self.index = index
 
     def __str__(self):
         line = self.name + "    | "
@@ -11,7 +12,10 @@ class Job:
         return line
 
     def __repr__(self):
-        return self.name
+        line = self.name + "    | "
+        for i in self.time:
+            line += str(i) + " | "
+        return line
 
     def __le__(self, second):
         if self.time[0] <= second.time[0] & self.time[0] <= second.time[1]:
