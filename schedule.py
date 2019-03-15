@@ -67,8 +67,7 @@ class Schedule:
                     sequence1.append(self.joblist[job.index])
                 else:
                     sequence2.append(self.joblist[job.index])
-            for job in sequence1:
-                print(job)
+
 
             self.joblist = sequence1 + list(reversed(sequence2))
 
