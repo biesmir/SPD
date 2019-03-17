@@ -50,8 +50,7 @@ class Schedule:
                     sequence1.append(self.joblist[i])
                 else:
                     sequence2.append(self.joblist[i])
-            sequence = sequence1 + list(reversed(sequence2))
-            self.joblist = sequence
+            self.joblist = sequence1 + list(reversed(sequence2))
 
         elif self.number_of_machines == 3:
             virtual_machines_list = []
