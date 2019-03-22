@@ -4,6 +4,10 @@ class Job:
         self.time = tuple(time)
         self.name = name
         self.index = index
+        self.cmax = sum(time)
+
+    def cmax(self):
+        return sum(self.time)
 
     def __str__(self):
         line = self.name + "    | "
