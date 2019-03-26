@@ -30,6 +30,7 @@ class Schedule:
             return max(self.cpi(job - 1, machine), self.cpi(job, machine - 1)) + self.joblist[job].time[machine]
 
     def make_random(self, jobs, machines):
+        self.joblist = []
         for i in range(jobs):
             self.joblist.append(Job([randint(1, 9) for j in range(machines)], index=i, name=("zadanie " + str(i+1))))
         self.number_of_jobs = jobs
@@ -85,13 +86,13 @@ class Schedule:
 
             for i, line in enumerate(file.readlines()):
                 self.joblist.append(Job(list(map(int, line.split())), index=i, name="zadanie " + str(i + 1)))
-                # print(list(map(int, line.split())))
 
     def basic_neh(self):
         """Podstawowy algorytm NEH"""
+
         best = {"minimum time": 0,
                 "best_position": 0}
-        self.joblist.sort(reverse=True, key=lambda x: x.cmax)
+        self.joblist.sort(reverse=True, key=lambda x: x.omega)
         tmp_schedule = Schedule([])
 
         for i in range(self.number_of_jobs):

@@ -4,7 +4,7 @@ class Job:
         self.time = tuple(time)
         self.name = name
         self.index = index
-        self.cmax = sum(time)
+        self.omega = sum(time)
 
     def cmax(self):
         return sum(self.time)
