@@ -9,6 +9,7 @@ class Schedule:
         self.name = name
         self.joblist = joblist
         self.number_of_jobs = len(joblist)
+        self.mtime = 0
         if self.number_of_jobs != 0:
             self.number_of_machines = len(joblist[0].time)
         else:
@@ -78,14 +79,21 @@ class Schedule:
             return
 
     def load_from_file(self, file_name):
+        self.joblist = []
         with open(file_name) as file:
+            line = file.readline()
+            line = file.readline()
+            while "data" not in line:
+                pass
+                line = file.readline()
             line = file.readline()
             line = list(map(int, line.split()))
             self.number_of_jobs = line[0]
             self.number_of_machines = line[1]
 
             for i, line in enumerate(file.readlines()):
-                self.joblist.append(Job(list(map(int, line.split())), index=i, name="zadanie " + str(i + 1)))
+                if line != '\n':
+                    self.joblist.append(Job(list(map(int, line.split())), index=i, name="zadanie " + str(i + 1)))
 
     def basic_neh(self):
         """Podstawowy algorytm NEH"""
@@ -151,4 +159,45 @@ class Schedule:
 
             tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
         #print("cmax = ", best["minimum time"])
+        self.joblist = tmp_schedule.joblist
+
+    def extend_neh_lng(self):
+        """Podstawowy algorytm NEH"""
+
+        best = {"minimum time": 0,
+                "best_position": 0}
+        self.joblist.sort(reverse=True, key=lambda x: x.omega)
+        tmp_schedule = Schedule([])
+
+        for i in range(self.number_of_jobs):
+            tmp_schedule.joblist.insert(0, self.joblist[i])
+            best["minimum time"] = tmp_schedule.cmax()
+            best["best_position"] = 0
+            del tmp_schedule.joblist[0]
+
+            for j in range(i+1):
+
+                tmp_schedule.joblist.insert(j, self.joblist[i])
+                if best["minimum time"] >= tmp_schedule.cmax():
+                    best["minimum time"] = tmp_schedule.cmax()
+                    best["best_position"] = j
+                del tmp_schedule.joblist[j]
+
+            tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
+
+            best["minimum time"] = tmp_schedule.cmax()
+            best["best_position"] = 0
+            job = max(tmp_schedule.joblist, key=lambda x: x.omega)
+            tmp_schedule.joblist.remove(job)
+
+            for j in range(i+1):
+
+                tmp_schedule.joblist.insert(j, job)
+                if best["minimum time"] >= tmp_schedule.cmax():
+                    best["minimum time"] = tmp_schedule.cmax()
+                    best["best_position"] = j
+                del tmp_schedule.joblist[j]
+
+            tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
+
         self.joblist = tmp_schedule.joblist
