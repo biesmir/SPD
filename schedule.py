@@ -150,5 +150,5 @@ class Schedule:
                 del tmp_schedule.joblist[j]
 
             tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
-        print("cmax = ", best["minimum time"])
+        #print("cmax = ", best["minimum time"])
         self.joblist = tmp_schedule.joblist
