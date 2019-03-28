@@ -132,11 +132,11 @@ class Schedule:
             for j in range(i+1):
                 tmp_schedule.joblist.insert(j, self.joblist[i])
                 if i > 2:
-                    for k in range(1, self.number_of_jobs):
+                    for k in range(self.number_of_jobs):
                         while prev_joblist[k] == tmp_schedule.joblist[k]:
                             add_schedule = tmp_schedule
                             del add_schedule.joblist[k-1]
-                            act_cmax = prev_cmax + add_schedule.cmax()
+                        act_cmax = prev_cmax + add_schedule.cmax()
                         if prev_joblist[k] != tmp_schedule.joblist[k]:
                             act_cmax = tmp_schedule.cmax()
                 else:
@@ -145,10 +145,10 @@ class Schedule:
                 if best["minimum time"] >= act_cmax:
                     best["minimum time"] = act_cmax
                     best["best_position"] = j
-                prev_cmax = tmp_schedule.cmax()
+                prev_cmax = act_cmax
                 prev_joblist = tmp_schedule.joblist
                 del tmp_schedule.joblist[j]
 
             tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
-        print("cmax = ", best["minimum time"])
+        #print("cmax = ", best["minimum time"])
         self.joblist = tmp_schedule.joblist
