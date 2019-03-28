@@ -139,14 +139,15 @@ class Schedule:
 
             for j in range(i+1):
                 tmp_schedule.joblist.insert(j, self.joblist[i])
-                if i > 2:
+                if i == self.number_of_jobs:
                     for k in range(self.number_of_jobs):
                         while prev_joblist[k] == tmp_schedule.joblist[k]:
                             add_schedule = tmp_schedule
-                            del add_schedule.joblist[k-1]
+                        for x in range(k-1):
+                            del add_schedule.joblist[x]
                         act_cmax = prev_cmax + add_schedule.cmax()
                         if prev_joblist[k] != tmp_schedule.joblist[k]:
-                            act_cmax = tmp_schedule.cmax()
+                          act_cmax = tmp_schedule.cmax()
                 else:
                     act_cmax = tmp_schedule.cmax()
 
@@ -157,8 +158,8 @@ class Schedule:
                 prev_joblist = tmp_schedule.joblist
                 del tmp_schedule.joblist[j]
 
+
             tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
-        #print("cmax = ", best["minimum time"])
         self.joblist = tmp_schedule.joblist
 
     def extend_neh_lng(self):
