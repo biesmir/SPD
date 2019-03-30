@@ -55,17 +55,20 @@ class Schedule:
 
     def ncmax(self):
         #zapisujemy czas zakończenia zadania 1 na kolejnych maszynach
-        for i in range(self.number_of_machines - 1):
-            self.joblist[0].end_time[i] = self.joblist[0].time[i]
+        self.joblist[0].end_time[0] = self.joblist[0].time[0]
+        for i in range(1, self.number_of_machines):
+            self.joblist[0].end_time[i] = self.joblist[0].time[i] + self.joblist[0].end_time[i - 1]
 
         #zapisujemy czas zakończenia zadań na 1 maszynie
-        for i in range(self.number_of_jobs - 1):
-            self.joblist[i].end_time[0] = self.joblist[i].time[0]
+        for i in range(1, self.number_of_jobs):
+            self.joblist[i].end_time[0] = self.joblist[i].time[0] + self.joblist[i-1].end_time[0]
 
-        for i in range(1, self.number_of_machines - 1):
-            for j in range(1, self.number_of_jobs - 1):
-                self.joblist[j].end_time[i] = max(self.joblist[j-1].end_time[i], self.joblist[j-1].end_time[i]) \
+        for i in range(1, self.number_of_machines):
+            for j in range(1, self.number_of_jobs):
+                self.joblist[j].end_time[i] = max(self.joblist[j].end_time[i-1], self.joblist[j-1].end_time[i]) \
                                               + self.joblist[j].time[i]
+
+        return self.joblist[self.number_of_jobs - 1].end_time[self.number_of_machines - 1]
 
     def make_random(self, jobs, machines):
         self.joblist = []
