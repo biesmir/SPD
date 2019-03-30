@@ -5,6 +5,7 @@ class Job:
         self.name = name
         self.index = index
         self.omega = sum(time)
+        self.end_time = [0] * len(time)
 
     def cmax(self):
         return sum(self.time)

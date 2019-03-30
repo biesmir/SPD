@@ -53,6 +53,20 @@ class Schedule:
         else:
             return max(self.cpi(job - 1, machine), self.cpi(job, machine - 1)) + self.joblist[job].time[machine]
 
+    def ncmax(self):
+        #zapisujemy czas zakończenia zadania 1 na kolejnych maszynach
+        for i in range(self.number_of_machines - 1):
+            self.joblist[0].end_time[i] = self.joblist[0].time[i]
+
+        #zapisujemy czas zakończenia zadań na 1 maszynie
+        for i in range(self.number_of_jobs - 1):
+            self.joblist[i].end_time[0] = self.joblist[i].time[0]
+
+        for i in range(1, self.number_of_machines - 1):
+            for j in range(1, self.number_of_jobs - 1):
+                self.joblist[j].end_time[i] = max(self.joblist[j-1].end_time[i], self.joblist[j-1].end_time[i]) \
+                                              + self.joblist[j].time[i]
+
     def make_random(self, jobs, machines):
         self.joblist = []
         for i in range(jobs):
