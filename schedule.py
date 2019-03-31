@@ -16,44 +16,44 @@ class Schedule:
         else:
             self.number_of_machines = 0
 
-    def opt_cmax(self):
+    # def opt_cmax(self):
+    #
+    #     self.number_of_jobs = len(self.joblist)
+    #     self.number_of_machines = len(self.joblist[0].time)
+    #     self.partial_cmax = [[0 for x in range(self.number_of_machines+1)] for y in range(self.number_of_jobs+1)]
+    #     return int(self.opt_cpi(self.number_of_jobs - 1, self.number_of_machines - 1))
+    #
+    # def opt_cpi(self, job, machine):
+    #     if machine == -1:
+    #         return 0
+    #
+    #     if job == -1:
+    #         return 0
+    #
+    #     if self.partial_cmax[self.number_of_jobs][self.number_of_machines] != 0:
+    #         return self.partial_cmax[self.number_of_jobs][self.number_of_machines]
+    #
+    #     else:
+    #         self.partial_cmax[self.number_of_jobs][self.number_of_machines] = max(self.cpi(job - 1, machine), self.cpi(job, machine - 1)) + self.joblist[job].time[machine]
+    #         return self.partial_cmax[self.number_of_jobs][self.number_of_machines]
 
-        self.number_of_jobs = len(self.joblist)
-        self.number_of_machines = len(self.joblist[0].time)
-        self.partial_cmax = [[0 for x in range(self.number_of_machines+1)] for y in range(self.number_of_jobs+1)]
-        return int(self.opt_cpi(self.number_of_jobs - 1, self.number_of_machines - 1))
-
-    def opt_cpi(self, job, machine):
-        if machine == -1:
-            return 0
-
-        if job == -1:
-            return 0
-
-        if self.partial_cmax[self.number_of_jobs][self.number_of_machines] != 0:
-            return self.partial_cmax[self.number_of_jobs][self.number_of_machines]
-
-        else:
-            self.partial_cmax[self.number_of_jobs][self.number_of_machines] = max(self.cpi(job - 1, machine), self.cpi(job, machine - 1)) + self.joblist[job].time[machine]
-            return self.partial_cmax[self.number_of_jobs][self.number_of_machines]
+    # def cmax(self):
+    #
+    #     self.number_of_jobs = len(self.joblist)
+    #     self.number_of_machines = len(self.joblist[0].time)
+    #     return int(self.cpi(self.number_of_jobs - 1, self.number_of_machines - 1))
+    #
+    # def cpi(self, job, machine):
+    #     if machine == -1:
+    #         return 0
+    #
+    #     if job == -1:
+    #         return 0
+    #
+    #     else:
+    #         return max(self.cpi(job - 1, machine), self.cpi(job, machine - 1)) + self.joblist[job].time[machine]
 
     def cmax(self):
-
-        self.number_of_jobs = len(self.joblist)
-        self.number_of_machines = len(self.joblist[0].time)
-        return int(self.cpi(self.number_of_jobs - 1, self.number_of_machines - 1))
-
-    def cpi(self, job, machine):
-        if machine == -1:
-            return 0
-
-        if job == -1:
-            return 0
-
-        else:
-            return max(self.cpi(job - 1, machine), self.cpi(job, machine - 1)) + self.joblist[job].time[machine]
-
-    def ncmax(self):
         #zapisujemy czas zakończenia zadania 1 na kolejnych maszynach
         self.joblist[0].end_time[0] = self.joblist[0].time[0]
         for i in range(1, self.number_of_machines):
@@ -268,3 +268,29 @@ class Schedule:
             tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
 
         self.joblist = tmp_schedule.joblist
+
+    # def neh_ncmax(self):
+    #     """Algorytm neh wykorzystujący mniej obliczeń dla cmax"""
+    #
+    #     best = {"minimum time": 0,
+    #             "best_position": 0}
+    #     self.joblist.sort(reverse=True, key=lambda x: x.omega)
+    #     tmp_schedule = Schedule([])
+    #
+    #     for i in range(self.number_of_jobs):
+    #         tmp_schedule.joblist.insert(0, self.joblist[i])
+    #         best["minimum time"] = tmp_schedule.ncmax()
+    #         best["best_position"] = 0
+    #         del tmp_schedule.joblist[0]
+    #
+    #         for j in range(i+1):
+    #
+    #             tmp_schedule.joblist.insert(j, self.joblist[i])
+    #             if best["minimum time"] >= tmp_schedule.ncmax():
+    #                 best["minimum time"] = tmp_schedule.ncmax()
+    #                 best["best_position"] = j
+    #             del tmp_schedule.joblist[j]
+    #
+    #         tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
+    #
+    #     self.joblist = tmp_schedule.joblist
