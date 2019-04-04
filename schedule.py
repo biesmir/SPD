@@ -54,6 +54,10 @@ class Schedule:
     #         return max(self.cpi(job - 1, machine), self.cpi(job, machine - 1)) + self.joblist[job].time[machine]
 
     def cmax(self):
+        if len(self.joblist) == 0:
+            return 0
+        self.number_of_jobs = len(self.joblist)
+        self.number_of_machines = len(self.joblist[0].time)
         #zapisujemy czas zakończenia zadania 1 na kolejnych maszynach
         self.joblist[0].end_time[0] = self.joblist[0].time[0]
         for i in range(1, self.number_of_machines):
@@ -161,31 +165,31 @@ class Schedule:
 
         self.joblist = tmp_schedule.joblist
 
-    def opt_neh(self):
-        """Algorytm neh wykorzystujący mniej obliczeń dla cmax"""
-
-        best = {"minimum time": 0,
-                "best_position": 0}
-        self.joblist.sort(reverse=True, key=lambda x: x.omega)
-        tmp_schedule = Schedule([])
-
-        for i in range(self.number_of_jobs):
-            tmp_schedule.joblist.insert(0, self.joblist[i])
-            best["minimum time"] = tmp_schedule.opt_cmax()
-            best["best_position"] = 0
-            del tmp_schedule.joblist[0]
-
-            for j in range(i+1):
-
-                tmp_schedule.joblist.insert(j, self.joblist[i])
-                if best["minimum time"] >= tmp_schedule.opt_cmax():
-                    best["minimum time"] = tmp_schedule.opt_cmax()
-                    best["best_position"] = j
-                del tmp_schedule.joblist[j]
-
-            tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
-
-        self.joblist = tmp_schedule.joblist
+    # def opt_neh(self):
+    #     """Algorytm neh wykorzystujący mniej obliczeń dla cmax"""
+    #
+    #     best = {"minimum time": 0,
+    #             "best_position": 0}
+    #     self.joblist.sort(reverse=True, key=lambda x: x.omega)
+    #     tmp_schedule = Schedule([])
+    #
+    #     for i in range(self.number_of_jobs):
+    #         tmp_schedule.joblist.insert(0, self.joblist[i])
+    #         best["minimum time"] = tmp_schedule.opt_cmax()
+    #         best["best_position"] = 0
+    #         del tmp_schedule.joblist[0]
+    #
+    #         for j in range(i+1):
+    #
+    #             tmp_schedule.joblist.insert(j, self.joblist[i])
+    #             if best["minimum time"] >= tmp_schedule.opt_cmax():
+    #                 best["minimum time"] = tmp_schedule.opt_cmax()
+    #                 best["best_position"] = j
+    #             del tmp_schedule.joblist[j]
+    #
+    #         tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
+    #
+    #     self.joblist = tmp_schedule.joblist
 
     def a_neh(self):
         """Algorytm NEH z akceleracja"""
@@ -229,7 +233,7 @@ class Schedule:
         self.joblist = tmp_schedule.joblist
 
     def extend_neh_lng(self):
-        """Podstawowy algorytm NEH"""
+        """algorytm NEH rozszerzony o """
 
         best = {"minimum time": 0,
                 "best_position": 0}
@@ -252,11 +256,20 @@ class Schedule:
 
             tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
 
-            #best["minimum time"] = tmp_schedule.cmax()
-            #best["best_position"] = 0
-            job = max(tmp_schedule.joblist, key=lambda x: x.omega)
-            tmp_schedule.joblist.remove(job)
+            best["minimum time"] = tmp_schedule.cmax()
+            best["best_position"] = 0
 
+            #szukanie zadania, którego usunięcie powoduje największe zmniejszenie cmax
+            for j in range(i+1):
+                deleted_job = tmp_schedule.joblist[j]
+                del tmp_schedule.joblist[j]
+                if best["minimum time"] > tmp_schedule.cmax():
+                    best["minimum time"] = tmp_schedule.cmax()
+                    best["best_position"] = j
+                tmp_schedule.joblist.insert(j, deleted_job)
+
+            job = tmp_schedule.joblist[best["best_position"]]
+            del tmp_schedule.joblist[best["best_position"]]
             for j in range(i+1):
 
                 tmp_schedule.joblist.insert(j, job)
