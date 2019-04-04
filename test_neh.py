@@ -31,6 +31,15 @@ class ScheduleTest(unittest.TestCase):
         schedule1.extend_neh_lng()
         self.assertEqual(len(schedule1.joblist), len(schedule2.joblist))
 
+    def test_neh_extnd3(self):
+        """test sprawdza czy po zastowowaniu ulepszonego algorytmu NEH zadania się nie powtarzają"""
+        schedule1 = Schedule()
+        schedule1.load_from_file("ta40")
+        schedule2 = Schedule()
+        schedule2.load_from_file("ta40")
+        schedule1.extend_neh_lng()
+        self.assertEqual(len(schedule1.joblist), len(set(schedule2.joblist)))
+
     def test_neh_basic(self):
         """test sprawdza czy po zastowowaniu ulepszonego algorytmu NEH ilość zadań pozostaje bez zmian"""
         schedule1 = Schedule()
