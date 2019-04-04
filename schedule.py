@@ -268,6 +268,9 @@ class Schedule:
                     best["best_position"] = j
                 tmp_schedule.joblist.insert(j, deleted_job)
 
+            best["minimum time"] = tmp_schedule.cmax()
+            best["best_position"] = 0
+
             job = tmp_schedule.joblist[best["best_position"]]
             del tmp_schedule.joblist[best["best_position"]]
             for j in range(i+1):
