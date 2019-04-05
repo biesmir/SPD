@@ -7,9 +7,6 @@ class Job:
         self.omega = sum(time)
         self.end_time = [0] * len(time)
 
-    def cmax(self):
-        return sum(self.time)
-
     def __str__(self):
         line = self.name + "    | "
         for i in self.time:

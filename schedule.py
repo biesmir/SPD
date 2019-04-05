@@ -16,27 +16,6 @@ class Schedule:
         else:
             self.number_of_machines = 0
 
-    # def opt_cmax(self):
-    #
-    #     self.number_of_jobs = len(self.joblist)
-    #     self.number_of_machines = len(self.joblist[0].time)
-    #     self.partial_cmax = [[0 for x in range(self.number_of_machines+1)] for y in range(self.number_of_jobs+1)]
-    #     return int(self.opt_cpi(self.number_of_jobs - 1, self.number_of_machines - 1))
-    #
-    # def opt_cpi(self, job, machine):
-    #     if machine == -1:
-    #         return 0
-    #
-    #     if job == -1:
-    #         return 0
-    #
-    #     if self.partial_cmax[self.number_of_jobs][self.number_of_machines] != 0:
-    #         return self.partial_cmax[self.number_of_jobs][self.number_of_machines]
-    #
-    #     else:
-    #         self.partial_cmax[self.number_of_jobs][self.number_of_machines] = max(self.cpi(job - 1, machine), self.cpi(job, machine - 1)) + self.joblist[job].time[machine]
-    #         return self.partial_cmax[self.number_of_jobs][self.number_of_machines]
-
     def cmax_old(self):
 
         self.number_of_jobs = len(self.joblist)
@@ -58,6 +37,7 @@ class Schedule:
             return 0
         self.number_of_jobs = len(self.joblist)
         self.number_of_machines = len(self.joblist[0].time)
+
         #zapisujemy czas zakończenia zadania 1 na kolejnych maszynach
         self.joblist[0].end_time[0] = self.joblist[0].time[0]
         for i in range(1, self.number_of_machines):
@@ -191,75 +171,8 @@ class Schedule:
 
         self.joblist = tmp_schedule.joblist
 
-    # def opt_neh(self):
-    #     """Algorytm neh wykorzystujący mniej obliczeń dla cmax"""
-    #
-    #     best = {"minimum time": 0,
-    #             "best_position": 0}
-    #     self.joblist.sort(reverse=True, key=lambda x: x.omega)
-    #     tmp_schedule = Schedule([])
-    #
-    #     for i in range(self.number_of_jobs):
-    #         tmp_schedule.joblist.insert(0, self.joblist[i])
-    #         best["minimum time"] = tmp_schedule.opt_cmax()
-    #         best["best_position"] = 0
-    #         del tmp_schedule.joblist[0]
-    #
-    #         for j in range(i+1):
-    #
-    #             tmp_schedule.joblist.insert(j, self.joblist[i])
-    #             if best["minimum time"] >= tmp_schedule.opt_cmax():
-    #                 best["minimum time"] = tmp_schedule.opt_cmax()
-    #                 best["best_position"] = j
-    #             del tmp_schedule.joblist[j]
-    #
-    #         tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
-    #
-    #     self.joblist = tmp_schedule.joblist
-
-    def a_neh(self):
-        """Algorytm NEH z akceleracja"""
-
-        best = {"minimum time": 0,
-                "best_position": 0}
-        self.joblist.sort(reverse=True, key=lambda x: x.omega)
-        tmp_schedule = Schedule([])
-        prev_cmax = 0
-        prev_joblist = []
-
-        for i in range(self.number_of_jobs):
-            tmp_schedule.joblist.insert(0, self.joblist[i])
-            best["minimum time"] = tmp_schedule.cmax()
-            best["best_position"] = 0
-            del tmp_schedule.joblist[0]
-
-            for j in range(i+1):
-                tmp_schedule.joblist.insert(j, self.joblist[i])
-                if i == self.number_of_jobs:
-                    for k in range(self.number_of_jobs):
-                        while prev_joblist[k] == tmp_schedule.joblist[k]:
-                            add_schedule = tmp_schedule
-                        for x in range(k-1):
-                            del add_schedule.joblist[x]
-                        act_cmax = prev_cmax + add_schedule.cmax()
-                        if prev_joblist[k] != tmp_schedule.joblist[k]:
-                          act_cmax = tmp_schedule.cmax()
-                else:
-                    act_cmax = tmp_schedule.cmax()
-
-                if best["minimum time"] >= act_cmax:
-                    best["minimum time"] = act_cmax
-                    best["best_position"] = j
-                prev_cmax = act_cmax
-                prev_joblist = tmp_schedule.joblist
-                del tmp_schedule.joblist[j]
-
-
-            tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
-        self.joblist = tmp_schedule.joblist
-
     def extend_neh_lng(self):
-        """algorytm NEH rozszerzony o """
+        """algorytm NEH rozszerzony o permutację zadania najbardziej zwiększającego cmax"""
 
         best = {"minimum time": 0,
                 "best_position": 0}
@@ -300,10 +213,9 @@ class Schedule:
                 tmp_schedule.joblist.insert(j, deleted_job)
 
             best["minimum time"] = tmp_schedule.cmax()
-            best["best_position"] = 0
-
             job = tmp_schedule.joblist[best["best_position"]]
             del tmp_schedule.joblist[best["best_position"]]
+
             for j in range(i+1):
 
                 tmp_schedule.joblist.insert(j, job)
@@ -315,29 +227,3 @@ class Schedule:
             tmp_schedule.joblist.insert(best["best_position"], job)
 
         self.joblist = tmp_schedule.joblist
-
-    # def neh_ncmax(self):
-    #     """Algorytm neh wykorzystujący mniej obliczeń dla cmax"""
-    #
-    #     best = {"minimum time": 0,
-    #             "best_position": 0}
-    #     self.joblist.sort(reverse=True, key=lambda x: x.omega)
-    #     tmp_schedule = Schedule([])
-    #
-    #     for i in range(self.number_of_jobs):
-    #         tmp_schedule.joblist.insert(0, self.joblist[i])
-    #         best["minimum time"] = tmp_schedule.ncmax()
-    #         best["best_position"] = 0
-    #         del tmp_schedule.joblist[0]
-    #
-    #         for j in range(i+1):
-    #
-    #             tmp_schedule.joblist.insert(j, self.joblist[i])
-    #             if best["minimum time"] >= tmp_schedule.ncmax():
-    #                 best["minimum time"] = tmp_schedule.ncmax()
-    #                 best["best_position"] = j
-    #             del tmp_schedule.joblist[j]
-    #
-    #         tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
-    #
-    #     self.joblist = tmp_schedule.joblist
