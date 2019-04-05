@@ -282,6 +282,7 @@ class Schedule:
 
             tmp_schedule.joblist.insert(best["best_position"], self.joblist[i])
 
+            prev = best["best_position"]
             best["minimum time"] = tmp_schedule.cmax()
             best["best_position"] = 0
 
@@ -289,6 +290,8 @@ class Schedule:
 
             #szukanie zadania, którego usunięcie powoduje największe zmniejszenie cmax
             for j in range(i+1):
+                if j == prev:
+                    continue
                 deleted_job = tmp_schedule.joblist[j]
                 del tmp_schedule.joblist[j]
                 if best["minimum time"] > tmp_schedule.cmax():
