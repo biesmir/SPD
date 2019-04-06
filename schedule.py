@@ -16,6 +16,9 @@ class Schedule:
         else:
             self.number_of_machines = 0
 
+    def __copy__(self):
+        return Schedule(self.joblist.copy(), self.name+"_kopia")
+
     def cmax_old(self):
 
         self.number_of_jobs = len(self.joblist)
