@@ -25,14 +25,13 @@ def annealing(schdl, u=0.98, temp=100, iterations=10):
 
         if tmp_schdl.cmax() < schdl.cmax():
             schdl = tmp_schdl
-            steps.append(tmp_schdl.cmax())
 
         else:
             prob = math.exp((schdl.cmax() - tmp_schdl.cmax())/temp)
             if random() < prob:
                 schdl = tmp_schdl
-                steps.append(tmp_schdl.cmax())
 
+        steps.append(schdl.cmax())
         temp = u * temp
 
     return steps
