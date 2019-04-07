@@ -16,12 +16,31 @@ def swap(schdl, schedule_length):
     schdl.joblist[index2], schdl.joblist[index1] = schdl.joblist[index1], schdl.joblist[index2]
 
 
-def annealing(schdl, u=0.98, temp=100, iterations=10):
+def random_insert(schdl, schedule_length):
+    # funkcja może mieć problemy jeśli dostanie harmoonogram krótszy niż 3 zadania
+    job_index = randint(0, schedule_length - 1)
+    new_index = randint(0, schedule_length - 2)
+
+    # sprawdzamy czy nie wylosowało się dwa razy to samo
+    while job_index == new_index:
+        job_index = randint(0, schedule_length - 1)
+        new_index = randint(0, schedule_length - 2)
+
+    job = schdl.joblist[job_index]
+    del schdl.joblist[job_index]
+    schdl.joblist.insert(new_index, job)
+
+
+def annealing(schdl, u=0.98, temp=100, iterations=10, move="swap"):
     schedule_lenght = len(schdl.joblist)
     steps = []
     for i in range(iterations):
         tmp_schdl = schdl.__copy__()
-        swap(tmp_schdl, schedule_lenght)
+
+        if move == "insert":
+            random_insert(tmp_schdl, schedule_lenght)
+        else:
+            swap(tmp_schdl, schedule_lenght)
 
         if tmp_schdl.cmax() < schdl.cmax():
             schdl = tmp_schdl
@@ -34,4 +53,4 @@ def annealing(schdl, u=0.98, temp=100, iterations=10):
         steps.append(schdl.cmax())
         temp = u * temp
 
-    return steps
+    return int(schdl.cmax()), steps
