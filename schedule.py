@@ -230,3 +230,14 @@ class Schedule:
             tmp_schedule.joblist.insert(best["best_position"], job)
 
         self.joblist = tmp_schedule.joblist
+
+    def randomize(self):
+        tmp_schedule = Schedule()
+        self.number_of_jobs = len(self.joblist)
+        for i in range(self.number_of_jobs):
+            index = randint(0, self.number_of_jobs - i - 1)
+            job = self.joblist[index]
+            del self.joblist[index]
+            tmp_schedule.joblist.insert(i, job)
+
+        self.joblist = tmp_schedule.joblist
