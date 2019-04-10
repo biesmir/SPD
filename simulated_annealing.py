@@ -60,6 +60,7 @@ def annealing(schdl, u=0.98, temp=100, iterations=10, move="swap", op="normal"):
 
     return int(schdl.cmax()), steps
 
+
 def annealing_prob(schdl, u=0.98, temp=100, iterations=10, move="swap", op="normal"):
     schedule_lenght = len(schdl.joblist)
     steps = []
