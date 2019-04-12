@@ -19,12 +19,12 @@ def swap(schdl, schedule_length):
 def random_insert(schdl, schedule_length):
     # funkcja może mieć problemy jeśli dostanie harmoonogram krótszy niż 3 zadania
     job_index = randint(0, schedule_length - 1)
-    new_index = randint(0, schedule_length - 2)
+    new_index = randint(0, schedule_length - 1)
 
     # sprawdzamy czy nie wylosowało się dwa razy to samo
     while job_index == new_index:
         job_index = randint(0, schedule_length - 1)
-        new_index = randint(0, schedule_length - 2)
+        new_index = randint(0, schedule_length - 1)
 
     job = schdl.joblist[job_index]
     del schdl.joblist[job_index]
