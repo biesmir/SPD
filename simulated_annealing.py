@@ -71,16 +71,11 @@ def annealing_prob(schdl, u=0.98, temp=100, iterations=10, move="swap", op="norm
             random_insert(tmp_schdl, schedule_lenght)
         else:
             swap(tmp_schdl, schedule_lenght)
-                
-        if tmp_schdl.cmax() < schdl.cmax():
-            prob = 0.98
-            if random() < prob:
-                schdl = tmp_schdl
+        
         # Odrzucenie prawdopodobienstwa 1 dla nowych lepszych rozwiazan
-        else:
-            prob = math.exp((schdl.cmax() - tmp_schdl.cmax())/temp)
-            if random() < prob:
-                schdl = tmp_schdl
+        prob = math.exp((schdl.cmax() - tmp_schdl.cmax())/temp)
+        if random() < prob:
+            schdl = tmp_schdl
 
         steps.append(schdl.cmax())
         if op == "alternative":
