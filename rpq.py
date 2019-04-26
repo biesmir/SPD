@@ -15,10 +15,13 @@ class Schedule:
             self.job_list = []
             self.load_from_file(file_name)
 
+    def __copy__(self):
+        return Schedule(job_list=self.job_list)
+
 
     def cmax(self):
         self.job_list[0].p_end_time = self.job_list[0].r + self.job_list[0].p
-        for i in range(1, self.number_of_jobs-1):
+        for i in range(1, self.number_of_jobs):
             self.job_list[i].p_end_time = max(self.job_list[i-1].p_end_time, self.job_list[i].r) +\
                                           self.job_list[i].p
 
