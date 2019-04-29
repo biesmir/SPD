@@ -1,9 +1,16 @@
 class Job:
-    def __init__(self, r: int, p: int, q: int):
+    def __init__(self, r: int, p: int, q: int, index=-1):
         self.r = r
         self.p = p
         self.q = q
         self.p_end_time = 0
+        self.index = index
+
+    def __str__(self):
+        return "job" + str(self.index) + '\n'
+
+    def __repr__(self):
+        return "job" + str(self.index) + '\n'
 
 
 class Schedule:
@@ -18,10 +25,9 @@ class Schedule:
     def __copy__(self):
         return Schedule(job_list=self.job_list)
 
-
     def cmax(self):
         self.job_list[0].p_end_time = self.job_list[0].r + self.job_list[0].p
-        for i in range(1, self.number_of_jobs):
+        for i in range(1, len(self.job_list)):
             self.job_list[i].p_end_time = max(self.job_list[i-1].p_end_time, self.job_list[i].r) +\
                                           self.job_list[i].p
 
@@ -32,10 +38,7 @@ class Schedule:
             line = file.readline()
             line = list(map(int, line.split()))
             self.number_of_jobs = line[0]
-            for line in file.readlines():
+            for i, line in enumerate(file.readlines()):
                 if line != '\n':
                     rpq_times = list(map(int, line.split()))
-                    self.job_list.append(Job(rpq_times[0], rpq_times[1], rpq_times[2]))
-
-
-
+                    self.job_list.append(Job(r=rpq_times[0], p=rpq_times[1], q=rpq_times[2], index=i))
