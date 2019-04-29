@@ -31,7 +31,8 @@ class Schedule:
             self.job_list[i].p_end_time = max(self.job_list[i-1].p_end_time, self.job_list[i].r) +\
                                           self.job_list[i].p
 
-        return self.job_list[-1].p_end_time + self.job_list[-1].q
+        last = max(self.job_list, key=lambda x: x.q + x.p_end_time)
+        return last.p_end_time + last.q
 
     def load_from_file(self, file_name):
         with open(file_name) as file:
