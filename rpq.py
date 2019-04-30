@@ -1,3 +1,6 @@
+from random import randint
+
+
 class Job:
     def __init__(self, r: int, p: int, q: int, index=-1):
         self.r = r
@@ -14,14 +17,18 @@ class Job:
 
 
 class Schedule:
-    def __init__(self, file_name="", job_list=[]):
+    def __init__(self, file_name="", job_list=[], randomize=False, length=0):
         if file_name == "":
             self.job_list = job_list
             self.number_of_jobs = len(job_list)
         else:
             self.job_list = []
             self.load_from_file(file_name)
-
+        if randomize:
+            for i in range(length):
+                self.job_list.append(Job(randint(1, 1000), randint(1, 90), randint(1, 1000), index=i))
+            self.number_of_jobs = len(job_list)
+            
     def __copy__(self):
         return Schedule(job_list=self.job_list)
 
@@ -43,3 +50,28 @@ class Schedule:
                 if line != '\n':
                     rpq_times = list(map(int, line.split()))
                     self.job_list.append(Job(r=rpq_times[0], p=rpq_times[1], q=rpq_times[2], index=i))
+
+
+def schrage(schdl):
+    sig = []
+    nn = schdl.__copy__()
+    ng = Schedule(job_list=[])
+    t = min(nn.job_list, key=lambda x: x.r).r
+    # print(t)
+
+    while ng.job_list != [] or nn.job_list != []:
+        while nn.job_list != [] and min(nn.job_list, key=lambda x: x.r).r <= t:
+
+            j = min(nn.job_list, key=lambda x: x.r)
+            ng.job_list.append(j)
+            nn.job_list.remove(j)
+
+        if not ng.job_list:
+            t = min(nn.job_list, key=lambda x: x.r).r
+        else:
+            j = max(ng.job_list, key=lambda x: x.q)
+
+            ng.job_list.remove(j)
+            sig.append(j)
+            t += j.p
+    return Schedule(job_list=sig)
