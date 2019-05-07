@@ -75,3 +75,37 @@ def schrage(schdl):
             sig.append(j)
             t += j.p
     return Schedule(job_list=sig)
+
+def schrage_pmtn(schdl):
+    Cmax = 0
+    nn = schdl.__copy__()
+    ng = Schedule(job_list=[])
+    t = 0
+    l = 0
+    q0 = 1e300*1e300
+
+    while ng.job_list != [] or nn.job_list != []:
+        while nn.job_list != [] and min(nn.job_list, key=lambda x: x.r).r <= t:
+
+            j = min(nn.job_list, key=lambda x: x.r)
+            ng.job_list.append(j)
+            nn.job_list.remove(j)
+
+            if l != 0:
+                if j.q > l.q:
+                    l.p = t - j.r
+                    t = j.r
+
+                    if l.p > 0:
+                        ng.job_list.append(l)
+
+        if not ng.job_list:
+            t = min(nn.job_list, key=lambda x: x.r).r
+        else:
+            j = max(ng.job_list, key=lambda x: x.q)
+
+            ng.job_list.remove(j)
+            l = j
+            t += j.p
+            Cmax = max(Cmax, t+j.q)
+    return Cmax
