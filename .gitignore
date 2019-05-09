@@ -46,3 +46,5 @@ SPD
 \.ipynb_checkpoints/Sprawozdanie_04-checkpoint\.ipynb
 
 __pycache__/rpq\.cpython-37\.pyc
+
+__pycache__/heap\.cpython-37\.pyc

@@ -76,6 +76,7 @@ def schrage(schdl):
             t += j.p
     return Schedule(job_list=sig)
 
+
 def schrage_pmtn(schdl):
     Cmax = 0
     nn = schdl.__copy__()
