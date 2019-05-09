@@ -2,17 +2,18 @@ class HeapQ:
     """
     max heap
     """
-    def __init__(self, schdl):
+    def __init__(self, schdl=[]):
         self.array = []
         self.size = 0
-        for job in schdl.job_list:
-            self.push(job)
+        if schdl != []:
+            for job in schdl.job_list:
+                self.push(job)
 
     def push(self, job):
         if not self.array:
             self.array.append(job)
         else:
-            self.size += 1
+            self.size = len(self.array)
             self.array.append(job)
             index = self.size
             parent = int((index - 1) / 2)
@@ -23,17 +24,22 @@ class HeapQ:
 
     def pop(self):
         value = self.array[0]
-        self.size -= 1
+
         del self.array[0]
+        self.size = len(self.array)
         index = 0
-        while index < self.size:
+        while index < self.size and index * 2 + 1 < self.size:
             if self.array[index].q < self.array[index * 2 + 1].q:
                 self.array[index * 2 + 1], self.array[index] = self.array[index], self.array[index * 2 + 1]
                 index = index * 2 + 1
 
-            elif self.array[index].q < self.array[index * 2 + 2].q:
-                self.array[index * 2 + 2], self.array[index] = self.array[index], self.array[index * 2 + 2]
-                index = index * 2 + 2
+            elif index * 2 + 2 < self.size:
+                if self.array[index].q < self.array[index * 2 + 2].q:
+                    self.array[index * 2 + 2], self.array[index] = self.array[index], self.array[index * 2 + 2]
+                    index = index * 2 + 2
+
+                else:
+                    break
 
             else:
                 break
@@ -48,14 +54,15 @@ class HeapR:
     def __init__(self, schdl):
         self.array = []
         self.size = 0
-        for job in schdl.job_list:
-            self.push(job)
+        if schdl != []:
+            for job in schdl.job_list:
+                self.push(job)
 
     def push(self, job):
         if not self.array:
             self.array.append(job)
         else:
-            self.size += 1
+            self.size = len(self.array)
             self.array.append(job)
             index = self.size
             parent = int((index - 1) / 2)
@@ -66,17 +73,20 @@ class HeapR:
 
     def pop(self):
         value = self.array[0]
-        self.size -= 1
         del self.array[0]
+        self.size = len(self.array)
         index = 0
-        while index < self.size:
+        while index < self.size * index*2 + 1 < self.size:
             if self.array[index].r > self.array[index * 2 + 1].r:
                 self.array[index * 2 + 1], self.array[index] = self.array[index], self.array[index * 2 + 1]
                 index = index * 2 + 1
 
-            elif self.array[index].r > self.array[index * 2 + 2].r:
-                self.array[index * 2 + 2], self.array[index] = self.array[index], self.array[index * 2 + 2]
-                index = index * 2 + 2
+            elif index*2 + 2 < self.size:
+                if self.array[index].r > self.array[index * 2 + 2].r:
+                    self.array[index * 2 + 2], self.array[index] = self.array[index], self.array[index * 2 + 2]
+                    index = index * 2 + 2
+                else:
+                    break
 
             else:
                 break

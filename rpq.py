@@ -1,4 +1,5 @@
 from random import randint
+from heap import HeapQ, HeapR
 
 
 class Job:
@@ -110,3 +111,26 @@ def schrage_pmtn(schdl):
             t += j.p
             Cmax = max(Cmax, t+j.q)
     return Cmax
+
+
+def schrage_heap(schdl):
+    sig = []
+    nn = HeapR(schdl)
+    ng = HeapQ()
+    t = nn.array[0].r
+    # print(t)
+
+    while ng.array != [] or nn.array != []:
+        while nn.array != [] and nn.array[0].r <= t:
+
+            j = nn.pop()
+            ng.push(j)
+
+        if not ng.array:
+            t = nn.array[0].r
+        else:
+            j = ng.pop()
+            sig.append(j)
+            t += j.p
+    return Schedule(job_list=sig)
+
