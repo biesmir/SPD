@@ -5,19 +5,23 @@ from job import Job
 class Schedule:
     """Klasa przechowująca informacje o kolejności wykonywania zadań"""
 
-    def __init__(self, joblist=[], name="bez nazwy"):
+    def __init__(self, file="", joblist=[], name="bez nazwy"):
         self.name = name
-        self.joblist = joblist
-        self.number_of_jobs = len(joblist)
-        self.mtime = 0
-        self.partial_cmax = []
-        if self.number_of_jobs != 0:
-            self.number_of_machines = len(joblist[0].time)
+        if file == "":
+            self.joblist = joblist
+            self.number_of_jobs = len(joblist)
+            self.mtime = 0
+            self.partial_cmax = []
+            if self.number_of_jobs != 0:
+                self.number_of_machines = len(joblist[0].time)
+            else:
+                self.number_of_machines = 0
+
         else:
-            self.number_of_machines = 0
+            self.load_from_file(file)
 
     def __copy__(self):
-        return Schedule(self.joblist.copy(), self.name+"_kopia")
+        return Schedule(joblist=self.joblist.copy(), name=self.name+"_kopia")
 
     def cmax_old(self):
 
@@ -118,8 +122,8 @@ class Schedule:
             self.number_of_machines = line[1]
 
             for i, line in enumerate(file.readlines()):
-                if line != '\n':
-                    self.joblist.append(Job(list(map(int, line.split())), index=i, name="zadanie " + str(i + 1)))
+                    if line != '\n':
+                        self.joblist.append(Job(list(map(int, line.split())), index=i, name="zadanie " + str(i + 1)))
 
     def basic_neh(self):
         """Podstawowy algorytm NEH z akceleracją"""
