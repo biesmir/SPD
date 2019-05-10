@@ -29,9 +29,12 @@ class HeapQ:
         del self.array[-1]
         self.size = len(self.array) - 1
         index = 0
-        while index*2 + 1 < self.size:
-            if self.array[index * 2 + 2].q > self.array[index * 2 + 1].q:
-                bigger = index * 2 + 2
+        while index*2 + 1 <= self.size:
+            if index*2 + 2 <= self.size:
+                if self.array[index * 2 + 2].q > self.array[index * 2 + 1].q:
+                    bigger = index * 2 + 2
+                else:
+                    bigger = index * 2 + 1
             else:
                 bigger = index * 2 + 1
             if self.array[index].q > self.array[bigger].q:

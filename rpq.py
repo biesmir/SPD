@@ -16,6 +16,9 @@ class Job:
     def __repr__(self):
         return "job" + str(self.index) + '\n'
 
+    def __copy__(self):
+        return Job(self.r, self.p, self.q, self.index)
+
 
 class Schedule:
     def __init__(self, file_name="", job_list=[], randomize=False, length=0):
@@ -31,7 +34,7 @@ class Schedule:
             self.number_of_jobs = len(job_list)
             
     def __copy__(self):
-        return Schedule(job_list=self.job_list)
+        return Schedule(job_list=[job.__copy__() for job in self.job_list])
 
     def cmax(self):
         self.job_list[0].p_end_time = self.job_list[0].r + self.job_list[0].p
@@ -55,7 +58,7 @@ class Schedule:
 
 def schrage(schdl):
     sig = []
-    nn = schdl.__copy__()
+    nn = schdl
     ng = Schedule(job_list=[])
     t = min(nn.job_list, key=lambda x: x.r).r
     # print(t)
@@ -80,7 +83,7 @@ def schrage(schdl):
 
 def schrage_pmtn(schdl):
     Cmax = 0
-    nn = schdl.__copy__()
+    nn = schdl
     ng = Schedule(job_list=[])
     t = 0
     l = 0
@@ -134,3 +137,32 @@ def schrage_heap(schdl):
             t += j.p
     return Schedule(job_list=sig)
 
+
+def schrage_pmtn_heap(schdl):
+    Cmax = 0
+    nn = HeapR(schdl)
+    ng = HeapQ()
+    t = 0
+    l = 0
+    q0 = 1e300 * 1e300
+
+    while ng.array != [] or nn.array != []:
+        while nn.array != [] and nn.array[0].r <= t:
+
+            j = nn.pop()
+            ng.push(j)
+            if l != 0:
+                if j.q > l.q:
+                    l.p = t - j.r
+                    t = j.r
+
+                    if l.p > 0:
+                        ng.push(l)
+        if not ng.array:
+            t = nn.array[0].r
+        else:
+            j = ng.pop()
+            l = j
+            t += j.p
+            Cmax = max(Cmax, t + j.q)
+    return Cmax
