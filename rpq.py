@@ -30,7 +30,7 @@ class Schedule:
             self.load_from_file(file_name)
         if randomize:
             for i in range(length):
-                self.job_list.append(Job(randint(1, 1000), randint(1, 90), randint(1, 1000), index=i))
+                self.job_list.append(Job(randint(1, 100), randint(1, 40), randint(1, 100), index=i))
             self.number_of_jobs = len(job_list)
             
     def __copy__(self):
