@@ -166,3 +166,33 @@ def schrage_pmtn_heap(schdl):
             t += j.p
             Cmax = max(Cmax, t + j.q)
     return Cmax
+
+
+def carlier(schdl):
+    u = schrage_heap(schdl)
+    i = -1
+
+    while not (u.job_list[i].p_end_time + u.job_list[i].q == u.cmax()):
+        i -= 1
+    while u.job_list[i].p_end_time + u.job_list[i].q == u.cmax():
+        b = i
+        i -= 1
+    i = b
+    while u.job_list[i-1].p_end_time == u.job_list[i].p_end_time - u.job_list[i].p:
+        i -= 1
+        a = i
+    i = b - 1
+    c = 0
+    while u.job_list[b].q > u.job_list[i].q:
+        i -= 1
+    if i > a:
+        c = i
+
+    if not c:
+        return u
+    k = u.job_list[c+1:b]
+    # zakładam, że pseudokod mówi tu o wartości, a nie o zadaniu
+    rk = min(k, key=lambda x: x.r).r
+    qk = min(k, key=lambda x: x.q).q
+    pk = sum(elem.p for elem in k)
+
