@@ -22,20 +22,58 @@ class RpqTest(unittest.TestCase):
 
 
 
+# schdl1 = Schedule("./dane rpq/in50.txt")
+# schdl2 = Schedule("./dane rpq/in100.txt")
+# schdl3 = Schedule("./dane rpq/in200.txt")
+#
+#
+#
+# schdl1 = schrage_pmtn(schdl1)
+# print("Otrzymano wynik: " + str(schdl1))
+# print("Prawidłowy wynik dla instancji in50 to: 1492")
+#
+# schdl2 = schrage_pmtn(schdl2)
+# print("Otrzymano wynik: " + str(schdl2))
+# print("Prawidłowy wynik dla instancji in100 to: 3070")
+#
+# schdl3 = schrage_pmtn(schdl3)
+# print("Otrzymano wynik: " + str(schdl3))
+# print("Prawidłowy wynik dla instancji in200: 6398")
+
+
+# schdl1 = Schedule("./dane rpq/in50.txt")
+# schdl2 = Schedule("./dane rpq/in100.txt")
+# schdl3 = Schedule("./dane rpq/in200.txt")
+
+
+
+# schdl1 = schrage_heap(schdl1)
+# print("Otrzymano wynik: " + str(schdl1.cmax()))
+# print("Prawidłowy wynik dla instancji in50 to: 1492")
+#
+# schdl2 = schrage_heap(schdl2)
+# print("Otrzymano wynik: " + str(schdl2.cmax()))
+# print("Prawidłowy wynik dla instancji in100 to: 3070")
+#
+# schdl3 = schrage_heap(schdl3)
+# print("Otrzymano wynik: " + str(schdl3.cmax()))
+# print("Prawidłowy wynik dla instancji in200: 6398")
+
+
 schdl1 = Schedule("./dane rpq/in50.txt")
 schdl2 = Schedule("./dane rpq/in100.txt")
 schdl3 = Schedule("./dane rpq/in200.txt")
 
 
 
-schdl1 = schrage_pmtn(schdl1)
-print("Otrymano wynik: " + str(schdl1))
+schdl1 = carlier(schdl1)
+print("Otrzymano wynik: " + str(schdl1))
 print("Prawidłowy wynik dla instancji in50 to: 1492")
 
-schdl2 = schrage_pmtn(schdl2)
-print("Otrymano wynik: " + str(schdl2))
+schdl2 = carlier(schdl2)
+print("Otrzymano wynik: " + str(schdl2))
 print("Prawidłowy wynik dla instancji in100 to: 3070")
 
-schdl3 = schrage_pmtn(schdl3)
-print("Otrymano wynik: " + str(schdl3))
+schdl3 = carlier(schdl3)
+print("Otrzymano wynik: " + str(schdl3))
 print("Prawidłowy wynik dla instancji in200: 6398")

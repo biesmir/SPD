@@ -1,7 +1,6 @@
 from random import randint
 from heap import HeapQ, HeapR
 
-
 class Job:
     def __init__(self, r: int, p: int, q: int, index=-1):
         self.r = r
@@ -32,7 +31,7 @@ class Schedule:
             for i in range(length):
                 self.job_list.append(Job(randint(1, 100), randint(1, 40), randint(1, 100), index=i))
             self.number_of_jobs = len(job_list)
-            
+
     def __copy__(self):
         return Schedule(job_list=[job.__copy__() for job in self.job_list])
 
@@ -166,3 +165,65 @@ def schrage_pmtn_heap(schdl):
             t += j.p
             Cmax = max(Cmax, t + j.q)
     return Cmax
+
+def carlier(schdl):
+    u = schrage_heap(schdl)
+    ub = 1e300 * 1e300
+    z = 0
+    dl = len(u.job_list)
+    print(dl)
+    if z == 0:
+        rc = 0
+        qc = 0
+    i = -1
+    if u.cmax() < ub:
+        ub = u
+
+    while not (u.job_list[i].p_end_time + u.job_list[i].q == u.cmax()):
+        i -= 1
+    while u.job_list[i].p_end_time + u.job_list[i].q == u.cmax():
+        b = u.job_list[i].index
+        i -= 1
+    i = b
+    while u.job_list[i-1].p_end_time == u.job_list[i].p_end_time - u.job_list[i].p:
+        i -= 1
+        a = u.job_list[i].index
+    i = b - 1
+    c = 0
+    while u.job_list[b].q > u.job_list[i].q:
+        i -= 1
+    if u.job_list[i].index > a:
+        c = u.job_list[i].index
+    print(a, b, c)
+    if not c:
+        return u.cmax()
+
+    k = u.job_list[c+1:b]
+    # zakładam, że pseudokod mówi tu o wartości, a nie o zadaniu
+    rk = min(k, key=lambda x: x.r).r
+    qk = min(k, key=lambda x: x.q).q
+    pk = sum(elem.p for elem in k)
+    rc = max(rc, rk+pk)
+    hk = rk + pk + qk
+    k_c = u.job_list[c:b]
+    rk_c = min(k_c, key=lambda x: x.r).r
+    qk_c = min(k_c, key=lambda x: x.q).q
+    pk_c = sum(elem.p for elem in k_c)
+    hk_c = rk_c + qk_c + pk_c
+
+    lb = schrage_pmtn_heap(schdl)
+    lb = max(hk, hk_c, lb)
+
+    if lb < ub.cmax():
+        carlier(schdl)
+    u.job_list[c].r = rc
+
+    qc = max(qc, qk + pk)
+    lb = schrage_pmtn_heap(schdl)
+    lb = max(hk, hk_c, lb)
+
+    if lb < ub.cmax():
+        carlier(schdl)
+    u.job_list[c].q = qc
+    z += 1
+
