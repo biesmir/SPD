@@ -19,7 +19,20 @@ class RpqTest(unittest.TestCase):
         schedule = schrage(schedule)
         self.assertEqual(schedule.cmax(), 6416)
 
+    def test_carlier1(self):
+        schdl1 = Schedule("./dane rpq/in50.txt")
+        schdl1 = carlier(schdl1)
+        self.assertEqual(schdl1.cmax(), 1492)
 
+    def test_carlier2(self):
+        schdl2 = Schedule("./dane rpq/in100.txt")
+        schdl2 = carlier(schdl2)
+        self.assertEqual(schdl2.cmax(), 3070)
+
+    def test_carlier3(self):
+        schdl3 = Schedule("./dane rpq/in200.txt")
+        schdl3 = carlier(schdl3)
+        self.assertEqual(schdl3.cmax(), 6398)
 
 
 # schdl1 = Schedule("./dane rpq/in50.txt")
@@ -60,20 +73,20 @@ class RpqTest(unittest.TestCase):
 # print("Prawidłowy wynik dla instancji in200: 6398")
 
 
-schdl1 = Schedule("./dane rpq/in50.txt")
-schdl2 = Schedule("./dane rpq/in100.txt")
-schdl3 = Schedule("./dane rpq/in200.txt")
-
-
-
-schdl1 = carlier(schdl1)
-print("Otrzymano wynik: " + str(schdl1))
-print("Prawidłowy wynik dla instancji in50 to: 1492")
-
-schdl2 = carlier(schdl2)
-print("Otrzymano wynik: " + str(schdl2))
-print("Prawidłowy wynik dla instancji in100 to: 3070")
-
-schdl3 = carlier(schdl3)
-print("Otrzymano wynik: " + str(schdl3))
-print("Prawidłowy wynik dla instancji in200: 6398")
+# schdl1 = Schedule("./dane rpq/in50.txt")
+# schdl2 = Schedule("./dane rpq/in100.txt")
+# schdl3 = Schedule("./dane rpq/in200.txt")
+#
+#
+#
+# schdl1 = carlier(schdl1)
+# print("Otrzymano wynik: " + str(schdl1))
+# print("Prawidłowy wynik dla instancji in50 to: 1492")
+#
+# schdl2 = carlier(schdl2)
+# print("Otrzymano wynik: " + str(schdl2))
+# print("Prawidłowy wynik dla instancji in100 to: 3070")
+#
+# schdl3 = carlier(schdl3)
+# print("Otrzymano wynik: " + str(schdl3))
+# print("Prawidłowy wynik dla instancji in200: 6398")
