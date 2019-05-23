@@ -166,12 +166,12 @@ def schrage_pmtn_heap(schdl):
             Cmax = max(Cmax, t + j.q)
     return Cmax
 
+
 def carlier(schdl):
     u = schrage_heap(schdl)
     ub = 1e300 * 1e300
     z = 0
     dl = len(u.job_list)
-    print(dl)
     i = -1
     if u.cmax() < ub:
         ub = u
@@ -199,8 +199,9 @@ def carlier(schdl):
     rk = min(k, key=lambda x: x.r).r
     qk = min(k, key=lambda x: x.q).q
     pk = sum(elem.p for elem in k)
+    rc = u.job_list[c].r
     rpi = u.job_list[c]
-    rc = max(u.job_list[c].r, rk+pk)
+    rpi.r = max(rpi.r, rk+pk)
     hk = rk + pk + qk
     k_c = u.job_list[c:b]
     rk_c = min(k_c, key=lambda x: x.r).r
@@ -215,13 +216,14 @@ def carlier(schdl):
         carlier(schdl)
     rpi.r = rc
 
-    qc = u.job_list[c]
-    qpi.q = max(qpi.q, qk + pk)
+    qc = u.job_list[c].q
+    qpi = u.job_list[c]
+    qpi.q = max(u.job_list[c].q, qk + pk)
     lb = schrage_pmtn_heap(schdl.__copy__())
     lb = max(hk, hk_c, lb)
 
-    if lb < ub.cmax():
+if lb < ub.cmax():
         carlier(schdl)
-    qpi.q = qc
+    qpi.q = qc  # odtwórz
     z += 1
 
