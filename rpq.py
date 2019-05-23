@@ -172,9 +172,6 @@ def carlier(schdl):
     z = 0
     dl = len(u.job_list)
     print(dl)
-    if z == 0:
-        rc = 0
-        qc = 0
     i = -1
     if u.cmax() < ub:
         ub = u
@@ -182,19 +179,18 @@ def carlier(schdl):
     while not (u.job_list[i].p_end_time + u.job_list[i].q == u.cmax()):
         i -= 1
     while u.job_list[i].p_end_time + u.job_list[i].q == u.cmax():
-        b = u.job_list[i].index
+        b = i
         i -= 1
     i = b
     while u.job_list[i-1].p_end_time == u.job_list[i].p_end_time - u.job_list[i].p:
         i -= 1
-        a = u.job_list[i].index
+        a = i
     i = b - 1
     c = 0
     while u.job_list[b].q > u.job_list[i].q:
         i -= 1
-    if u.job_list[i].index > a:
-        c = u.job_list[i].index
-    print(a, b, c)
+    if i > a:
+        c = i
     if not c:
         return u.cmax()
 
@@ -203,7 +199,8 @@ def carlier(schdl):
     rk = min(k, key=lambda x: x.r).r
     qk = min(k, key=lambda x: x.q).q
     pk = sum(elem.p for elem in k)
-    rc = max(rc, rk+pk)
+    rpi = u.job_list[c]
+    rc = max(u.job_list[c].r, rk+pk)
     hk = rk + pk + qk
     k_c = u.job_list[c:b]
     rk_c = min(k_c, key=lambda x: x.r).r
@@ -211,19 +208,20 @@ def carlier(schdl):
     pk_c = sum(elem.p for elem in k_c)
     hk_c = rk_c + qk_c + pk_c
 
-    lb = schrage_pmtn_heap(schdl)
+    lb = schrage_pmtn_heap(schdl.__copy__())
     lb = max(hk, hk_c, lb)
 
     if lb < ub.cmax():
         carlier(schdl)
-    u.job_list[c].r = rc
+    rpi.r = rc
 
-    qc = max(qc, qk + pk)
-    lb = schrage_pmtn_heap(schdl)
+    qc = u.job_list[c]
+    qpi.q = max(qpi.q, qk + pk)
+    lb = schrage_pmtn_heap(schdl.__copy__())
     lb = max(hk, hk_c, lb)
 
     if lb < ub.cmax():
         carlier(schdl)
-    u.job_list[c].q = qc
+    qpi.q = qc
     z += 1
 
