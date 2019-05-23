@@ -1,5 +1,6 @@
 from random import randint
 from heap import HeapQ, HeapR
+import sys
 
 
 class Job:
@@ -169,7 +170,10 @@ def schrage_pmtn_heap(schdl):
 
 
 def carlier(schdl):
+    # cpython chroni nas przed zbyt głębokoą rekurencją
+    # jeśli będzie konieczność zwiększyć limit przez:  sys.setrecursionlimit(limit)
     u = schrage_heap(schdl)
+    ub = u.cmax()
     i = -1
 
     while not (u.job_list[i].p_end_time + u.job_list[i].q == u.cmax()):
@@ -195,4 +199,14 @@ def carlier(schdl):
     rk = min(k, key=lambda x: x.r).r
     qk = min(k, key=lambda x: x.q).q
     pk = sum(elem.p for elem in k)
+    try:
+        u.job_list[-1].r = max(u.job_list[-1].r, rk + pk)
+    except UnboundLocalError:
+        rpi = rk + pk
 
+    lb = schrage_pmtn_heap(u.__copy__())
+    #co to jest hk?
+    # lb = max(lb, )
+
+    if lb < ub:
+        carlier(u)
