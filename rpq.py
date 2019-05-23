@@ -167,13 +167,17 @@ def schrage_pmtn_heap(schdl):
     return Cmax
 
 
-def carlier(u):
+def carlier(u, ub=0):
     u = schrage_heap(u)
-    ub = 1e300 * 1e300
     z = 0
     dl = len(u.job_list)
     i = -1
-    if u.cmax() < ub:
+
+    #uznałem, że u nas ub to jakiś harmonogram
+    try:
+        if u.cmax() < ub.cmax():
+            ub = u
+    except AttributeError:
         ub = u
 
     while not (u.job_list[i].p_end_time + u.job_list[i].q == u.cmax()):
@@ -200,8 +204,8 @@ def carlier(u):
     qk = min(k, key=lambda x: x.q).q
     pk = sum(elem.p for elem in k)
     rc = u.job_list[c].r
-    rpi = u.job_list[c]
-    rpi.r = max(rpi.r, rk+pk)
+    rpi = u.job_list[c].index
+    u.job_list[c].r = max(u.job_list[c].r, rk+pk)
     hk = rk + pk + qk
     k_c = u.job_list[c:b]
     rk_c = min(k_c, key=lambda x: x.r).r
@@ -213,17 +217,24 @@ def carlier(u):
     lb = max(hk, hk_c, lb)
 
     if lb < ub.cmax():
-        carlier(u)
-    rpi.r = rc
+        carlier(u, ub)
+    for job in u.job_list:
+        if job.index == rpi:
+            job.q = rc
+            break
 
     qc = u.job_list[c].q
-    qpi = u.job_list[c]
-    qpi.q = max(u.job_list[c].q, qk + pk)
+    qpi = u.job_list[c].index
+    u.job_list[c].q = max(u.job_list[c].q, qk + pk)
     lb = schrage_pmtn_heap(u.__copy__())
     lb = max(hk, hk_c, lb)
 
     if lb < ub.cmax():
-        carlier(u)
-    qpi.q = qc
+        carlier(u, ub)
+    for job in u.job_list:
+        if job.index == qpi:
+            job.q = qc
+            break
+
     z += 1
 
