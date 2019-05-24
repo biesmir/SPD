@@ -1,6 +1,7 @@
 from random import randint
 from heap import HeapQ, HeapR
 
+
 class Job:
     def __init__(self, r: int, p: int, q: int, index=-1):
         self.r = r
@@ -86,7 +87,6 @@ def schrage_pmtn(schdl):
     ng = Schedule(job_list=[])
     t = 0
     l = 0
-    q0 = 1e300*1e300
 
     while ng.job_list != [] or nn.job_list != []:
         while nn.job_list != [] and min(nn.job_list, key=lambda x: x.r).r <= t:
@@ -143,7 +143,6 @@ def schrage_pmtn_heap(schdl):
     ng = HeapQ()
     t = 0
     l = 0
-    q0 = 1e300 * 1e300
 
     while ng.array != [] or nn.array != []:
         while nn.array != [] and nn.array[0].r <= t:
@@ -167,76 +166,88 @@ def schrage_pmtn_heap(schdl):
     return Cmax
 
 
-def carlier(u, ub=0):
-    u = schrage_heap(u)
+def carlier(schdl, ub=float("inf")):
+    pi = schrage_heap(schdl.__copy__())
+    u = pi.cmax()
     z = 0
-    dl = len(u.job_list)
     i = -1
 
-    #uznałem, że u nas ub to jakiś harmonogram
-    try:
-        if u.cmax() < ub.cmax():
-            ub = u.__copy__()
-    except AttributeError:
-        ub = u.__copy__()
+    if u < ub:
+        pi_star = pi
+        ub = u
 
-    while not (u.job_list[i].p_end_time + u.job_list[i].q == u.cmax()):
+    while not (pi.job_list[i].p_end_time + pi.job_list[i].q == pi.cmax()):
         b = i
         i -= 1
 
-    while u.job_list[i-1].p_end_time == u.job_list[i].p_end_time - u.job_list[i].p:
-        a = i
+    while pi.job_list[i-1].p_end_time == pi.job_list[i].p_end_time - pi.job_list[i].p:
         i -= 1
-        if i == -len(u.job_list):
+        a = i
+        if i == -len(pi.job_list):
             break
     i = b - 1
     c = 0
-    while u.job_list[b].q + u.job_list[b].p_end_time > u.job_list[i].q + u.job_list[i].p_end_time:
+    while pi.job_list[b].q > pi.job_list[i].q:
         i -= 1
     if i > a:
         c = i
     if not c:
-        return ub
+        print(pi_star)
+        return pi_star, ub
 
-    k = u.job_list[c+1:b+1]
+    qc = pi.job_list[c].q
+
+    k = pi.job_list[c:b]
     # zakładam, że pseudokod mówi tu o wartości, a nie o zadaniu
     rk = min(k, key=lambda x: x.r).r
     qk = min(k, key=lambda x: x.q).q
     pk = sum(elem.p for elem in k)
-    rc = u.job_list[c].r
-    rpi = u.job_list[c].index
-    u.job_list[c].r = max(u.job_list[c].r, rk+pk)
+
+    rc = pi.job_list[c].r
+    rpi = pi.job_list[c].index
+    tmp = max(pi.job_list[c].r, rk+pk)
+    pi.job_list[c].r = max(pi.job_list[c].r, rk+pk)
+
     hk = rk + pk + qk
-    k_c = u.job_list[c:b]
+    k_c = pi.job_list[c-1:b]
+    # co to było h??
     rk_c = min(k_c, key=lambda x: x.r).r
     qk_c = min(k_c, key=lambda x: x.q).q
     pk_c = sum(elem.p for elem in k_c)
     hk_c = rk_c + qk_c + pk_c
 
-    lb = schrage_pmtn_heap(u.__copy__())
+    lb = schrage_pmtn_heap(pi.__copy__())
     lb = max(hk, hk_c, lb)
 
-    tmp = ub.cmax()
-    if lb < ub.cmax():
-        u = carlier(u, ub)
-    for job in u.job_list:
+    if lb < ub:
+        pi, ub = carlier(pi, ub)
+    for job in pi.job_list:
         if job.index == rpi:
             job.r = rc
             break
 
-    qc = u.job_list[c].q
-    qpi = u.job_list[c].index
-    u.job_list[c].q = max(u.job_list[c].q, qk + pk)
-    lb = schrage_pmtn_heap(u.__copy__())
+    qc = pi.job_list[c].q
+    qpi = pi.job_list[c].index
+    tmp = max(pi.job_list[c].q, qk + pk)
+    pi.job_list[c].q = max(pi.job_list[c].q, qk + pk)
+
+    hk = rk + pk + qk
+    k_c = pi.job_list[c:b+1]
+
+    rk_c = min(k_c, key=lambda x: x.r).r
+    qk_c = min(k_c, key=lambda x: x.q).q
+    pk_c = sum(elem.p for elem in k_c)
+    hk_c = rk_c + qk_c + pk_c
+
+    lb = schrage_pmtn_heap(pi.__copy__())
     lb = max(hk, hk_c, lb)
 
-    tmp = ub.cmax()
-    if lb < ub.cmax():
-        u = carlier(u, ub)
-    for job in u.job_list:
+    if lb < ub:
+        pi, ub = carlier(pi, ub)
+    for job in pi.job_list:
         if job.index == qpi:
             job.q = qc
             break
 
     z += 1
-    return ub
+    return pi, ub
