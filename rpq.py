@@ -1,5 +1,6 @@
 from random import randint
 from heap import HeapQ, HeapR
+import sys
 
 
 class Job:
@@ -156,6 +157,7 @@ def schrage_pmtn_heap(schdl):
 
                     if l.p > 0:
                         ng.push(l)
+
         if not ng.array:
             t = nn.array[0].r
         else:
@@ -167,15 +169,16 @@ def schrage_pmtn_heap(schdl):
 
 
 def carlier(schdl, ub=float("inf")):
+
     pi = schrage_heap(schdl.__copy__())
     u = pi.cmax()
-    z = 0
     i = -1
 
     if u < ub:
         pi_star = pi
         ub = u
 
+    b = -1
     while not (pi.job_list[i].p_end_time + pi.job_list[i].q == pi.cmax()):
         b = i
         i -= 1
@@ -190,15 +193,14 @@ def carlier(schdl, ub=float("inf")):
     while pi.job_list[b].q > pi.job_list[i].q:
         i -= 1
     if i > a:
-        c = i
+        c = i-1
     if not c:
         print(pi_star)
         return pi_star, ub
-
-    qc = pi.job_list[c].q
-
-    k = pi.job_list[c:b]
-    # zakładam, że pseudokod mówi tu o wartości, a nie o zadaniu
+    if b != -1:
+        k = pi.job_list[c + 1:b + 1]
+    else:
+        k = pi.job_list[c + 1:]
     rk = min(k, key=lambda x: x.r).r
     qk = min(k, key=lambda x: x.q).q
     pk = sum(elem.p for elem in k)
@@ -207,10 +209,11 @@ def carlier(schdl, ub=float("inf")):
     rpi = pi.job_list[c].index
     tmp = max(pi.job_list[c].r, rk+pk)
     pi.job_list[c].r = max(pi.job_list[c].r, rk+pk)
+    tmp = pi.job_list[c].index
 
     hk = rk + pk + qk
-    k_c = pi.job_list[c-1:b]
-    # co to było h??
+    k_c = pi.job_list[c:b]
+
     rk_c = min(k_c, key=lambda x: x.r).r
     qk_c = min(k_c, key=lambda x: x.q).q
     pk_c = sum(elem.p for elem in k_c)
@@ -221,6 +224,7 @@ def carlier(schdl, ub=float("inf")):
 
     if lb < ub:
         pi, ub = carlier(pi, ub)
+
     for job in pi.job_list:
         if job.index == rpi:
             job.r = rc
@@ -230,14 +234,6 @@ def carlier(schdl, ub=float("inf")):
     qpi = pi.job_list[c].index
     tmp = max(pi.job_list[c].q, qk + pk)
     pi.job_list[c].q = max(pi.job_list[c].q, qk + pk)
-
-    hk = rk + pk + qk
-    k_c = pi.job_list[c:b+1]
-
-    rk_c = min(k_c, key=lambda x: x.r).r
-    qk_c = min(k_c, key=lambda x: x.q).q
-    pk_c = sum(elem.p for elem in k_c)
-    hk_c = rk_c + qk_c + pk_c
 
     lb = schrage_pmtn_heap(pi.__copy__())
     lb = max(hk, hk_c, lb)
@@ -249,5 +245,4 @@ def carlier(schdl, ub=float("inf")):
             job.q = qc
             break
 
-    z += 1
     return pi, ub

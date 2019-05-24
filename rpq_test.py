@@ -1,5 +1,6 @@
 from rpq import *
 import unittest
+import sys
 
 
 class RpqTest(unittest.TestCase):
@@ -21,18 +22,20 @@ class RpqTest(unittest.TestCase):
 
     def test_carlier1(self):
         schdl1 = Schedule("./dane rpq/in50.txt")
-        schdl1 = carlier(schdl1)
-        self.assertEqual(schdl1.cmax(), 1492)
+        schdl1, cmax = carlier(schdl1)
+        self.assertEqual(cmax, 1492)
 
     def test_carlier2(self):
+        sys.setrecursionlimit(30000)
         schdl2 = Schedule("./dane rpq/in100.txt")
-        schdl2 = carlier(schdl2)
-        self.assertEqual(schdl2.cmax(), 3070)
+        schdl2, cmax = carlier(schdl2)
+        self.assertEqual(cmax, 3070)
 
     def test_carlier3(self):
+        sys.setrecursionlimit(30000)
         schdl3 = Schedule("./dane rpq/in200.txt")
-        schdl3 = carlier(schdl3)
-        self.assertEqual(schdl3.cmax(), 6398)
+        schdl3, cmax = carlier(schdl3)
+        self.assertEqual(cmax, 6398)
 
 
 # schdl1 = Schedule("./dane rpq/in50.txt")
