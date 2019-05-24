@@ -176,29 +176,29 @@ def carlier(u, ub=0):
     #uznałem, że u nas ub to jakiś harmonogram
     try:
         if u.cmax() < ub.cmax():
-            ub = u
+            ub = u.__copy__()
     except AttributeError:
-        ub = u
+        ub = u.__copy__()
 
     while not (u.job_list[i].p_end_time + u.job_list[i].q == u.cmax()):
-        i -= 1
-    while u.job_list[i].p_end_time + u.job_list[i].q == u.cmax():
         b = i
         i -= 1
-    i = b
+
     while u.job_list[i-1].p_end_time == u.job_list[i].p_end_time - u.job_list[i].p:
-        i -= 1
         a = i
+        i -= 1
+        if i == -len(u.job_list):
+            break
     i = b - 1
     c = 0
-    while u.job_list[b].q > u.job_list[i].q:
+    while u.job_list[b].q + u.job_list[b].p_end_time > u.job_list[i].q + u.job_list[i].p_end_time:
         i -= 1
     if i > a:
         c = i
     if not c:
-        return u.cmax()
+        return ub
 
-    k = u.job_list[c+1:b]
+    k = u.job_list[c+1:b+1]
     # zakładam, że pseudokod mówi tu o wartości, a nie o zadaniu
     rk = min(k, key=lambda x: x.r).r
     qk = min(k, key=lambda x: x.q).q
@@ -216,11 +216,12 @@ def carlier(u, ub=0):
     lb = schrage_pmtn_heap(u.__copy__())
     lb = max(hk, hk_c, lb)
 
+    tmp = ub.cmax()
     if lb < ub.cmax():
-        carlier(u, ub)
+        u = carlier(u, ub)
     for job in u.job_list:
         if job.index == rpi:
-            job.q = rc
+            job.r = rc
             break
 
     qc = u.job_list[c].q
@@ -229,12 +230,13 @@ def carlier(u, ub=0):
     lb = schrage_pmtn_heap(u.__copy__())
     lb = max(hk, hk_c, lb)
 
+    tmp = ub.cmax()
     if lb < ub.cmax():
-        carlier(u, ub)
+        u = carlier(u, ub)
     for job in u.job_list:
         if job.index == qpi:
             job.q = qc
             break
 
     z += 1
-
+    return ub
