@@ -195,8 +195,10 @@ def carlier(schdl, ub=float("inf")):
     if i > a and b != i:
         c = i
     if not c:
-        print(pi_star)
-        return pi_star, ub
+        try:
+            return pi_star, ub
+        except NameError:
+            return pi, ub
     if b != -1:
         k = pi.job_list[c:b + 1]
     else:
