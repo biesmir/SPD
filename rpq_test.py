@@ -26,70 +26,16 @@ class RpqTest(unittest.TestCase):
         self.assertEqual(cmax, 1492)
 
     def test_carlier2(self):
-        sys.setrecursionlimit(30000)
         schdl2 = Schedule("./dane rpq/in100.txt")
         schdl2, cmax = carlier(schdl2)
         self.assertEqual(cmax, 3070)
 
     def test_carlier3(self):
-        sys.setrecursionlimit(30000)
         schdl3 = Schedule("./dane rpq/in200.txt")
         schdl3, cmax = carlier(schdl3)
         self.assertEqual(cmax, 6398)
 
-
-# schdl1 = Schedule("./dane rpq/in50.txt")
-# schdl2 = Schedule("./dane rpq/in100.txt")
-# schdl3 = Schedule("./dane rpq/in200.txt")
-#
-#
-#
-# schdl1 = schrage_pmtn(schdl1)
-# print("Otrzymano wynik: " + str(schdl1))
-# print("Prawidłowy wynik dla instancji in50 to: 1492")
-#
-# schdl2 = schrage_pmtn(schdl2)
-# print("Otrzymano wynik: " + str(schdl2))
-# print("Prawidłowy wynik dla instancji in100 to: 3070")
-#
-# schdl3 = schrage_pmtn(schdl3)
-# print("Otrzymano wynik: " + str(schdl3))
-# print("Prawidłowy wynik dla instancji in200: 6398")
-
-
-# schdl1 = Schedule("./dane rpq/in50.txt")
-# schdl2 = Schedule("./dane rpq/in100.txt")
-# schdl3 = Schedule("./dane rpq/in200.txt")
-
-
-
-# schdl1 = schrage_heap(schdl1)
-# print("Otrzymano wynik: " + str(schdl1.cmax()))
-# print("Prawidłowy wynik dla instancji in50 to: 1492")
-#
-# schdl2 = schrage_heap(schdl2)
-# print("Otrzymano wynik: " + str(schdl2.cmax()))
-# print("Prawidłowy wynik dla instancji in100 to: 3070")
-#
-# schdl3 = schrage_heap(schdl3)
-# print("Otrzymano wynik: " + str(schdl3.cmax()))
-# print("Prawidłowy wynik dla instancji in200: 6398")
-
-
-# schdl1 = Schedule("./dane rpq/in50.txt")
-# schdl2 = Schedule("./dane rpq/in100.txt")
-# schdl3 = Schedule("./dane rpq/in200.txt")
-#
-#
-#
-# schdl1 = carlier(schdl1)
-# print("Otrzymano wynik: " + str(schdl1))
-# print("Prawidłowy wynik dla instancji in50 to: 1492")
-#
-# schdl2 = carlier(schdl2)
-# print("Otrzymano wynik: " + str(schdl2))
-# print("Prawidłowy wynik dla instancji in100 to: 3070")
-#
-# schdl3 = carlier(schdl3)
-# print("Otrzymano wynik: " + str(schdl3))
-# print("Prawidłowy wynik dla instancji in200: 6398")
+    def test_carlierm1(self):
+        schdl = Schedule("./dane rpq/data001.txt")
+        schdl, cmax = carlier(schdl)
+        self.assertEqual(cmax, 3016)
