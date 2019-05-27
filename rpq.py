@@ -180,25 +180,25 @@ def carlier(schdl, ub=float("inf")):
 
     b = -1
     while not (pi.job_list[i].p_end_time + pi.job_list[i].q == pi.cmax()):
-        b = i
         i -= 1
+        b = i
 
     while pi.job_list[i-1].p_end_time == pi.job_list[i].p_end_time - pi.job_list[i].p:
         i -= 1
         a = i
         if i == -len(pi.job_list):
             break
-    i = b - 1
+    i = b-1
     c = 0
-    while pi.job_list[b].q > pi.job_list[i].q:
+    while not pi.job_list[b].q > pi.job_list[i].q and i > -len(pi.job_list):
         i -= 1
-    if i > a:
-        c = i-1
+    if i > a and b != i:
+        c = i
     if not c:
         print(pi_star)
         return pi_star, ub
     if b != -1:
-        k = pi.job_list[c + 1:b + 1]
+        k = pi.job_list[c:b + 1]
     else:
         k = pi.job_list[c + 1:]
     rk = min(k, key=lambda x: x.r).r
@@ -209,10 +209,10 @@ def carlier(schdl, ub=float("inf")):
     rpi = pi.job_list[c].index
     tmp = max(pi.job_list[c].r, rk+pk)
     pi.job_list[c].r = max(pi.job_list[c].r, rk+pk)
-    tmp = pi.job_list[c].index
+    tmp = pi.job_list[c]
 
     hk = rk + pk + qk
-    k_c = pi.job_list[c:b]
+    k_c = pi.job_list[c-1:b+1]
 
     rk_c = min(k_c, key=lambda x: x.r).r
     qk_c = min(k_c, key=lambda x: x.q).q
