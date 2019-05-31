@@ -192,7 +192,7 @@ def carlier(schdl, ub=float("inf")):
     c = 0
     while not pi.job_list[b].q > pi.job_list[i].q and i > -len(pi.job_list):
         i -= 1
-    if i > a and b != i:
+    if b != i > a:
         c = i
     if not c:
         try:
