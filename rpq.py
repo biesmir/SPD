@@ -248,3 +248,90 @@ def carlier(schdl, ub=float("inf")):
             break
 
     return pi, ub
+
+
+def carlier_ext(schdl, ub=float("inf")):
+
+    pi = schrage_heap(schdl.__copy__())
+    u = pi.cmax()
+    i = -1
+
+    if u < ub:
+        pi_star = pi
+        ub = u
+
+    b = -1
+    while not (pi.job_list[i].p_end_time + pi.job_list[i].q == pi.cmax()):
+        i -= 1
+        b = i
+
+    while pi.job_list[i-1].p_end_time == pi.job_list[i].p_end_time - pi.job_list[i].p:
+        i -= 1
+        a = i
+        if i == -len(pi.job_list):
+            break
+    i = b-1
+    c = 0
+    while not pi.job_list[b].q > pi.job_list[i].q and i > -len(pi.job_list):
+        i -= 1
+    if b != i > a:
+        c = i
+    if not c:
+        try:
+            return pi_star, ub
+        except NameError:
+            return pi, ub
+    if b != -1:
+        k = pi.job_list[c:b + 1]
+        pik = pi.job_list[:c] + pi.job_list[b + 1:]
+    else:
+        k = pi.job_list[c:]
+        pik = pi.job_list[:c]
+
+    rk = min(k, key=lambda x: x.r).r
+    qk = min(k, key=lambda x: x.q).q
+    pk = sum(elem.p for elem in k)
+
+    rc = pi.job_list[c].r
+    rpi = pi.job_list[c].index
+    tmp = max(pi.job_list[c].r, rk+pk)
+    pi.job_list[c].r = max(pi.job_list[c].r, rk+pk)
+    tmp = pi.job_list[c]
+
+    hk = rk + pk + qk
+    k_c = pi.job_list[c-1:b+1]
+
+    rk_c = min(k_c, key=lambda x: x.r).r
+    qk_c = min(k_c, key=lambda x: x.q).q
+    pk_c = sum(elem.p for elem in k_c)
+    hk_c = rk_c + qk_c + pk_c
+
+    l = [i if i.p > (UB - hk) else [] for i in pik]
+
+    lb = schrage_pmtn_heap(pi.__copy__())
+    lb = max(hk, hk_c, lb)
+
+    if lb < ub:
+        pi, ub = carlier(pi, ub)
+
+    for job in pi.job_list:
+        if job.index == rpi:
+            job.r = rc
+            break
+
+    qc = pi.job_list[c].q
+    qpi = pi.job_list[c].index
+    tmp = max(pi.job_list[c].q, qk + pk)
+    pi.job_list[c].q = max(pi.job_list[c].q, qk + pk)
+
+    lb = schrage_pmtn_heap(pi.__copy__())
+    lb = max(hk, hk_c, lb)
+
+    if lb < ub:
+        pi, ub = carlier(pi, ub)
+    for job in pi.job_list:
+        if job.index == qpi:
+            job.q = qc
+            break
+
+    return pi, ub
