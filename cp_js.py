@@ -2,6 +2,24 @@ from ortools.sat.python import cp_model
 from job import Job
 from ortools.linear_solver import pywraplp
 
+
+def load_from_file(file_name):
+    joblist = []
+    with open(file_name) as file:
+        line = file.readline()
+        line = file.readline()
+        while "data" not in line:
+            pass
+            line = file.readline()
+        line = file.readline()
+        line = list(map(int, line.split()))
+
+        for i, line in enumerate(file.readlines()):
+            if line != '\n':
+                joblist.append(Job(list(map(int, line.split())), index=i, name="zadanie " + str(i + 1)))
+    return joblist
+
+
 def cp_js(jobs):
     model = cp_model.CpModel()
     solver = cp_model.CpSolver()
@@ -33,7 +51,6 @@ def cp_js(jobs):
     print(solver.ObjectiveValue())
 
 
-
 if __name__ == '__main__':
-    jobs = [Job([1,2,3], 0), Job([1,2,3], 1), Job([1,2,3], 3)]
+    jobs = load_from_file("ta0")
     cp_js(jobs)
