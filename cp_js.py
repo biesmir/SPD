@@ -2,6 +2,24 @@ from ortools.sat.python import cp_model
 from job import Job
 from ortools.linear_solver import pywraplp
 
+
+def load_from_file(file_name):
+    joblist = []
+    with open(file_name) as file:
+        line = file.readline()
+        line = file.readline()
+        while "data" not in line:
+            pass
+            line = file.readline()
+        line = file.readline()
+        line = list(map(int, line.split()))
+
+        for i, line in enumerate(file.readlines()):
+            if line != '\n':
+                joblist.append(Job(list(map(int, line.split())), index=i, name="zadanie " + str(i + 1)))
+    return joblist
+
+
 def cp_js(jobs):
     model = cp_model.CpModel()
     solver = cp_model.CpSolver()
@@ -13,7 +31,7 @@ def cp_js(jobs):
         for j in range(len(jobs)):
             alfasMatrix[i, j] = model.NewIntVar(0, 1, "alfa"+str(i) + "_" + str(j))
 
-    starts = [[(model.NewIntVar(0, variableMaxValue, "starts"+str(i)+"machine"+str(j))) for i in range(len(jobs))] for j in range(len(jobs))]
+    starts = [[(model.NewIntVar(0, variableMaxValue, "starts"+str(i)+"machine"+str(j))) for i in range(len(jobs[0].time))] for j in range(len(jobs))]
     cmax = model.NewIntVar(0, variableMaxValue, "cmax")
 
     for j in range(1, len(jobs[0].time)):
@@ -33,7 +51,6 @@ def cp_js(jobs):
     print(solver.ObjectiveValue())
 
 
-
 if __name__ == '__main__':
-    jobs = [Job([1,2,3], 0), Job([1,2,3], 1), Job([1,2,3], 3)]
+    jobs = load_from_file("ta1")
     cp_js(jobs)
