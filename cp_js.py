@@ -31,7 +31,7 @@ def cp_js(jobs):
         for j in range(len(jobs)):
             alfasMatrix[i, j] = model.NewIntVar(0, 1, "alfa"+str(i) + "_" + str(j))
 
-    starts = [[(model.NewIntVar(0, variableMaxValue, "starts"+str(i)+"machine"+str(j))) for i in range(len(jobs))] for j in range(len(jobs))]
+    starts = [[(model.NewIntVar(0, variableMaxValue, "starts"+str(i)+"machine"+str(j))) for i in range(len(jobs[0].time))] for j in range(len(jobs))]
     cmax = model.NewIntVar(0, variableMaxValue, "cmax")
 
     for j in range(1, len(jobs[0].time)):
@@ -52,5 +52,5 @@ def cp_js(jobs):
 
 
 if __name__ == '__main__':
-    jobs = load_from_file("ta0")
+    jobs = load_from_file("ta1")
     cp_js(jobs)
