@@ -2,8 +2,6 @@ from __future__ import print_function
 from ortools.linear_solver import pywraplp
 from pathlib import Path
 from ortools.sat.python import cp_model
-from ortools.constraint_solver import pywrapcp
-from ortools.constraint_solver import solver_parameters_pb2
 
 
 def cp(jobs, instanceName):
