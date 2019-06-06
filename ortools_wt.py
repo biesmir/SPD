@@ -28,8 +28,8 @@ def Milp_WT(jobs, instanceName):
             alfasMatrix[i, j] = solver.IntVar(0, 1, "alfa"+str(i) + "_" + str(j))
 
     starts = [(solver.IntVar(0, variableMaxValue, "starts"+str(i))) for i in range(len(jobs))]
+    delay = [(solver.IntVar(0, variableMaxValue, "delay" + str(i))) for i in range(len(jobs))]
     suma_wT = solver.IntVar(0, variableMaxValue, "suma_wT")
-
 
     Ti = []
     sumaP2 = []
