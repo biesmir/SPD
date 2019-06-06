@@ -17,8 +17,9 @@ def Milp_WT(jobs, instanceName):
     sumaP = []
     for x in range(len(jobs)):
         sumaP.append(jobs[x].P)
+    print("sumaP" + str(sum(sumaP)))
     variableMaxValue = sum(job.W*(sum(sumaP)-job.D) for job in jobs)
-
+    print(variableMaxValue)
     solver = pywraplp.Solver('simple_mip_program',
             pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING)
 
@@ -31,28 +32,36 @@ def Milp_WT(jobs, instanceName):
     delay = [(solver.IntVar(0, variableMaxValue, "delay" + str(i))) for i in range(len(jobs))]
     suma_wT = solver.IntVar(0, variableMaxValue, "suma_wT")
 
-    Ti = []
-    sumaP2 = []
-    list2 = []
-
-    for x in range(len(jobs)):
-        sumaP2.append(jobs[x].P)
-        if sum(sumaP2) > jobs[x].D:
-            Ti.append(sum(sumaP2) - jobs[x].D)
-            # print(sumaP)
-            # print(sum(sumaP))
-            # print(jobs[x].D)
-        else:
-            Ti.append(0)
-        list2.append(jobs[x].W * Ti[x])
-        suma = sum(list2)
-
-    print(suma)
+    # Ti = []
+    # sumaP2 = []
+    # list2 = []
+    #
+    # for x in range(len(jobs)):
+    #     sumaP2.append(jobs[x].P)
+    #     if sum(sumaP2) > jobs[x].D:
+    #         Ti.append(sum(sumaP2) - jobs[x].D)
+    #         # print(sumaP)
+    #         # print(sum(sumaP))
+    #         # print(jobs[x].D)
+    #     else:
+    #         Ti.append(0)
+    #     list2.append(jobs[x].W * Ti[x])
+    #     suma = sum(list2)
+    #
+    # print(suma)
     # print(list2)
     # lista = []
+    suma = []
+    s_2 = []
     for job, start in zip(jobs, starts):
-        solver.Add(start >= job.P)
-        solver.Add(suma_wT >= suma)
+        for i in range(len(jobs)):
+            solver.Add(start >= job.P)
+            suma.append(jobs[i].P)
+            #solver.Add(suma_wT >= suma)
+            solver.Add(delay[i] >= sum(suma) - job.D)
+            #solver.Add(jobs[i-1].P >= jobs[i].P)
+            # s_2.append(delay[i]*job.W)
+            # solver.Add(suma_wT >= sum(s_2))
 
         # for i in range(len(jobs)):
         #     for j in range(i + 1, len(jobs)):
