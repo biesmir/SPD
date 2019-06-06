@@ -1,43 +1,51 @@
 from __future__ import print_function
 from ortools.linear_solver import pywraplp
 from pathlib import Path
+from ortools.sat.python import cp_model
 from ortools.constraint_solver import pywrapcp
 from ortools.constraint_solver import solver_parameters_pb2
 
 
 def cp(jobs, instanceName):
-    variableMaxValue = sum(job.R + job.P + job.Q for job in jobs)
-    # Instantiate a CP solver.
-    parameters = pywrapcp.Solver.DefaultSolverParameters()
-    solver = pywrapcp.Solver('simple_CP', parameters)
-    m
+    model = cp_model.CpModel()
+    solver = cp_model.CpSolver()
+
+    # variableMaxValue = sum(job.R+job.P+job.Q for job in jobs)
+    # r = model.NewIntVar(0, variableMaxValue, 'r')
+    # p = model.NewIntVar(0, variableMaxValue, 'p')
+    # q = model.NewIntVar(0, variableMaxValue, 'q')
+    # model.Add()
+    variableMaxValue = sum(job.R+job.P+job.Q for job in jobs)
+
     alfasMatrix = {}
     for i in range(len(jobs)):
-      for j in range(len(jobs)):
-          alfasMatrix[i, j] = solver.IntVar(0, 1, "alfa" + str(i) + "_" + str(j))
+        for j in range(len(jobs)):
+            alfasMatrix[i, j] = model.NewIntVar(0, 1, "alfa"+str(i) + "_" + str(j))
 
-    starts = [(solver.IntVar(0, variableMaxValue, "starts" + str(i))) for i in range(len(jobs))]
-    cmax = solver.IntVar(0, variableMaxValue, "cmax")
+    starts = [(model.NewIntVar(0, variableMaxValue, "starts"+str(i))) for i in range(len(jobs))]
+    cmax = model.NewIntVar(0, variableMaxValue, "cmax")
 
     for job, start in zip(jobs, starts):
-      solver.Add(start >= job.R)
-      solver.Add(cmax >= start + job.P + job.Q)
+        model.Add(start >= job.R)
+        model.Add(cmax >= start + job.P + job.Q)
 
     for i in range(len(jobs)):
-      for j in range(i + 1, len(jobs)):
-          solver.Add(starts[i] + jobs[i].P <= starts[j] + alfasMatrix[i, j] * variableMaxValue)
-          solver.Add(starts[j] + jobs[j].P <= starts[i] + alfasMatrix[j, i] * variableMaxValue)
-          solver.Add(alfasMatrix[i, j] + alfasMatrix[j, i] == 1)
+        for j in range(i+1, len(jobs)):
+            model.Add(starts[i]+jobs[i].P <= starts[j] + alfasMatrix [i,j]*variableMaxValue)
+            model.Add(starts[j]+jobs[j].P <= starts[i] + alfasMatrix[j,i] *variableMaxValue)
+            model.Add(alfasMatrix[i,j] + alfasMatrix[j,i] == 1)
 
     model.Minimize(cmax)
-    status = solver.Solve()
+    status = solver.Solve(model)
     if status != pywraplp.Solver.OPTIMAL:
-      print("Not optimal!")
-    print(instanceName, "Cmax:", solver.Objective().Value())
-    pi = [(i, starts[i].solution_value()) for i in range(len(starts))]
-
-    pi.sort(key=lambda x: x[1])
-    print(pi)
+        print("Not optimal!")
+    # print(instanceName, "Cmax:", solver.ObjectiveValue())
+    # pi = [(i, starts[i].solution_value()) for i in range(len(starts))]
+    #
+    # pi.sort(key=lambda x: x[1])
+    # print(pi)
+    print(solver.ObjectiveValue())
+    # print(starts)
 
 
 class RPQ():
