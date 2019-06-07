@@ -32,14 +32,15 @@ def CP_WT(jobs, instanceName):
             model.Add(starts[i]+jobs[i].P <= starts[j] + alfasMatrix [i,j]*variableMaxValue)
             model.Add(starts[j]+jobs[j].P <= starts[i] + alfasMatrix[j,i] *variableMaxValue)
             model.Add(alfasMatrix[i,j] + alfasMatrix[j,i] == 1)
+        model.Add(penalty[i] >= (starts[i]+jobs[i].P-jobs[i].D)*jobs[i].W)
 
-    model.Minimize(sum((starts[i]+jobs[i].P-jobs[i].D)*jobs[i].W if (starts[i]+jobs[i].P-jobs[i].D) >= 0 else 0 for i in range(len(starts))))
+    model.Minimize(sum(penalty))
     status = solver.Solve(model)
     pi = [(i, start.GetVarValueMap()) for start in starts]
-    print(instanceName, "Suma opt:", solver.ObjectiveValue())
+    print(instanceName, "Suma CP:", solver.ObjectiveValue())
 
-    pi.sort(key=lambda x: x[1])
-    print(pi)
+    # pi.sort(key=lambda x: x[1])
+    # print(pi)
 
 
 def Milp_WT(jobs, instanceName):
@@ -69,7 +70,7 @@ def Milp_WT(jobs, instanceName):
     status = solver.Solve()
     if status != pywraplp.Solver.OPTIMAL:
         print("Not optimal!")
-    print(instanceName, "Suma opt:", solver.Objective().Value())
+    print(instanceName, "Suma Milp:", solver.Objective().Value())
     pi = [(i, starts[i].solution_value()) for i in range(len(starts))]
 
     pi.sort(key=lambda x: x[1])
@@ -96,5 +97,5 @@ if __name__ == '__main__':
     files = ["./dane pwd/data11.txt"]
     for file in files:
         jobs = GetPWDsFromFile(file)
-        # CP_WT(jobs, file)
+        CP_WT(jobs, file)
         Milp_WT(jobs, file)

@@ -8,11 +8,6 @@ def cp(jobs, instanceName):
     model = cp_model.CpModel()
     solver = cp_model.CpSolver()
 
-    # variableMaxValue = sum(job.R+job.P+job.Q for job in jobs)
-    # r = model.NewIntVar(0, variableMaxValue, 'r')
-    # p = model.NewIntVar(0, variableMaxValue, 'p')
-    # q = model.NewIntVar(0, variableMaxValue, 'q')
-    # model.Add()
     variableMaxValue = sum(job.R+job.P+job.Q for job in jobs)
 
     alfasMatrix = {}
@@ -35,15 +30,10 @@ def cp(jobs, instanceName):
 
     model.Minimize(cmax)
     status = solver.Solve(model)
-    if status != pywraplp.Solver.OPTIMAL:
-        print("Not optimal!")
-    # print(instanceName, "Cmax:", solver.ObjectiveValue())
-    # pi = [(i, starts[i].solution_value()) for i in range(len(starts))]
-    #
-    # pi.sort(key=lambda x: x[1])
-    # print(pi)
+    pi = [(i, starts[i].GetVarValueMap()) for i in range(len(starts))]
+    print(pi)
+
     print(solver.ObjectiveValue())
-    # print(starts)
 
 
 class RPQ():
@@ -105,7 +95,7 @@ def GetRPQsFromFile (file_path):
 
 
 if __name__ == '__main__':
-    files = ["./dane rpq/data000.txt"]
+    files = ["./dane rpq/datarpq1.txt"]
     for file in files:
         jobs = GetRPQsFromFile(file)
         cp(jobs, file)
