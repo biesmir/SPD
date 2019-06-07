@@ -1,6 +1,5 @@
 from ortools.sat.python import cp_model
 from job import Job
-from ortools.linear_solver import pywraplp
 
 
 def load_from_file(file_name):
@@ -34,23 +33,23 @@ def cp_js(jobs):
     starts = [[(model.NewIntVar(0, variableMaxValue, "starts"+str(i)+"machine"+str(j))) for i in range(len(jobs[0].time))] for j in range(len(jobs))]
     cmax = model.NewIntVar(0, variableMaxValue, "cmax")
 
-    for j in range(1, len(jobs[0].time)):
-        model.Add(starts[0][j] >= jobs[0].time[j-1] + starts[0][j-1])
-
-    for i in range(1, len(jobs)):
-        for j in range(1, len(jobs[0].time)):
-            model.Add(starts[i][j] >= jobs[i-1].time[j-1] + starts[i-1][j])
-            model.Add(starts[i][j] >= jobs[i-1].time[j-1] + starts[i][j-1])
-    model.Add(cmax >= starts[-1][-1] + jobs[-1].time[-1])
+    for i in range(len(jobs)):
+        for j in range(i+1, len(jobs)):
+            for k in range(len(jobs[0].time)):
+                model.Add(starts[i][k]+jobs[i].time[k] <= starts[j][k] + alfasMatrix [i,j]*variableMaxValue)
+                model.Add(starts[j][k]+jobs[j].time[k] <= starts[i][k] + alfasMatrix[j,i] *variableMaxValue)
+                model.Add(alfasMatrix[i,j] + alfasMatrix[j,i] == 1)
+        model.Add(cmax >= starts[i][k] + jobs[i].time[k])
 
     model.Minimize(cmax)
     status = solver.Solve(model)
-    if status != pywraplp.Solver.OPTIMAL:
-        print("Not optimal!")
-
+    pi = [(i, starts[i][0].GetVarValueMap()) for i in range(len(starts))]
+    # pi.sort(key=lambda x: x[1])
+    print(pi)
+    # cmax.GetVarValueMap()
     print(solver.ObjectiveValue())
 
 
 if __name__ == '__main__':
-    jobs = load_from_file("ta1")
+    jobs = load_from_file("insa/ta01")
     cp_js(jobs)
