@@ -20,22 +20,20 @@ class RpqTest(unittest.TestCase):
         self.assertEqual(schedule.cmax(), 6416)
 
 
+class RpqTest_pmtn(unittest.TestCase):
+
+    def test_schrage_pmtn1(self):
+        schedule = Schedule("./dane rpq/in50.txt")
+        self.assertEqual(schrage_pmtn(schedule), 1492)
+
+    def test_schrage_pmtn2(self):
+        schedule = Schedule("./dane rpq/in100.txt")
+        self.assertEqual(schrage_pmtn(schedule), 3070)
+
+    def test_schrage_pmtn3(self):
+        schedule = Schedule("./dane rpq/in200.txt")
+        self.assertEqual(schrage_pmtn(schedule), 6398)
 
 
-schdl1 = Schedule("./dane rpq/in50.txt")
-schdl2 = Schedule("./dane rpq/in100.txt")
-schdl3 = Schedule("./dane rpq/in200.txt")
-
-
-
-schdl1 = schrage_pmtn(schdl1)
-print("Otrymano wynik: " + str(schdl1))
-print("Prawidłowy wynik dla instancji in50 to: 1492")
-
-schdl2 = schrage_pmtn(schdl2)
-print("Otrymano wynik: " + str(schdl2))
-print("Prawidłowy wynik dla instancji in100 to: 3070")
-
-schdl3 = schrage_pmtn(schdl3)
-print("Otrymano wynik: " + str(schdl3))
-print("Prawidłowy wynik dla instancji in200: 6398")
+if __name__ == '__main__':
+    unittest.main()
