@@ -1,20 +1,31 @@
 from random import randint
 from heap import HeapQ, HeapR
 from carlier_vertex import Vertex
+import threading
 import multiprocessing
 from queue import PriorityQueue
 
 
 class Job:
-    def __init__(self, r: int, p: int, q: int, index=-1):
-        self.r = r
-        self.r0 = r
-        self.p = p
-        self.p0 = p
-        self.q = q
-        self.q0 = q
-        self.p_end_time = 0
-        self.index = index
+    def __init__(self, r: int, p: int, q: int, index=-1, r0=-1, p0=-1, q0=-1):
+        if r0 < 0:
+            self.r = r
+            self.r0 = r
+            self.p = p
+            self.p0 = p
+            self.q = q
+            self.q0 = q
+            self.p_end_time = 0
+            self.index = index
+        else:
+            self.r = r
+            self.r0 = r0
+            self.p = p
+            self.p0 = p0
+            self.q = q
+            self.q0 = q0
+            self.p_end_time = 0
+            self.index = index
 
     def __str__(self):
         return "job" + str(self.index) + '\n'
@@ -23,7 +34,7 @@ class Job:
         return "job" + str(self.index) + '\n'
 
     def __copy__(self):
-        return Job(self.r, self.p, self.q, self.index)
+        return Job(self.r, self.p, self.q, self.index, self.r0, self.p0, self.q0)
 
     def repair(self):
         self.r = self.r0
@@ -353,7 +364,9 @@ def carlier_worker(pqueue):
     while not pi:
         pi = carlier_ext(pqueue)
     pi.repair()
-    print(pi.cmax())
+    # print(pi.cmax())
+    # print(len(pi.job_list))
+    # print(len(set(pi.job_list)))
 
 
 def carlier_new(schdl, proc=1):
