@@ -3,7 +3,7 @@ from heap import HeapQ, HeapR
 from carlier_vertex import Vertex
 import threading
 import multiprocessing
-from queue import PriorityQueue
+from queue import PriorityQueue, LifoQueue
 
 
 class Job:
@@ -325,16 +325,16 @@ def carlier_ext(pqueue):
     lb = max(hk, hk_c, lb)
 
     if lb < ub:
-        pqueue.put(item=Vertex(pi2, current_vertex.depth + 1, ub))
+        pqueue.put(item=Vertex(pi2, current_vertex.depth + 1, lb, ub))
 
     pi3 = pi.__copy__()
-    pi3.job_list[c].q = max(pi3.job_list[c].q, qk + pk)
+    pi3.job_list[c].q = max(pi3.job_list[c].q, pi3.job_list[b].q + pk)
 
     lb = schrage_pmtn_heap(pi3.__copy__())
     lb = max(hk, hk_c, lb)
 
     if lb < ub:
-        pqueue.put(item=Vertex(pi3, current_vertex.depth + 1, ub))
+        pqueue.put(item=Vertex(pi3, current_vertex.depth + 1, lb, ub))
 
     job_i = None
     for i in range(-len(pi.job_list), -1):
@@ -345,12 +345,11 @@ def carlier_ext(pqueue):
         tmp = pi.job_list[job_i].r + pi.job_list[job_i].p + pk + pi.job_list[b].q
         if pi.job_list[job_i].r + pi.job_list[job_i].p + pk + pi.job_list[b].q >= ub:
             pi.job_list[job_i].r = max(pi.job_list[job_i].r, rk+pk)
-            pqueue.put(item=Vertex(pi, current_vertex.depth + 1, ub))
-        tmp = rk + pi.job_list[job_i].p + pk + pi.job_list[job_i].q
-        if rk + pi.job_list[job_i].p + pk + pi.job_list[job_i].q >= ub:
+        elif rk + pi.job_list[job_i].p + pk + pi.job_list[job_i].q >= ub:
             pi.job_list[job_i].q = max(pi.job_list[job_i].q, qk+pk)
-            pqueue.put(item=Vertex(pi, current_vertex.depth + 1, ub))
 
+    if lb < ub:
+        pqueue.put(item=Vertex(pi, current_vertex.depth + 1, lb, ub))
     return
 
 
@@ -369,8 +368,9 @@ def carlier_worker(pqueue):
 
 def carlier_new(schdl, proc=1):
 
+    # pqueue = LifoQueue()
     pqueue = PriorityQueue()
-    pqueue.put(item=Vertex(schdl, 0, float("inf")))
+    pqueue.put(item=Vertex(schdl, 0, 0, float("inf")))
 
     return carlier_worker(pqueue)
 

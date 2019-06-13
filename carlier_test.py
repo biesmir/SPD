@@ -28,15 +28,15 @@ class CarlierTestM(unittest.TestCase):
         schdl, cmax = carlier(schdl)
         self.assertEqual(cmax, 228)
 
-    # def test_carlierm1(self):
-    #     schdl = Schedule("./dane rpq/data001.txt")
-    #     schdl, cmax = carlier(schdl)
-    #     self.assertEqual(cmax, 3016)
+    def test_carlierm1(self):
+        schdl = Schedule("./dane rpq/data001.txt")
+        schdl, cmax = carlier(schdl)
+        self.assertEqual(cmax, 3016)
 
-    # def test_carlierm2(self):
-    #     schdl = Schedule("./dane rpq/data002.txt")
-    #     schdl, cmax = carlier(schdl)
-    #     self.assertEqual(cmax, 3665)
+    def test_carlierm2(self):
+        schdl = Schedule("./dane rpq/data002.txt")
+        schdl, cmax = carlier(schdl)
+        self.assertEqual(cmax, 3665)
 
     def test_carlierm3(self):
         schdl = Schedule("./dane rpq/data003.txt")
@@ -48,22 +48,26 @@ class CarlierTestM(unittest.TestCase):
         schdl, cmax = carlier(schdl)
         self.assertEqual(cmax, 3191)
 
-    # def test_carlierm5(self):
-    #     schdl = Schedule("./dane rpq/data005.txt")
-    #     schdl, cmax = carlier(schdl)
-    #     self.assertEqual(cmax, 3618)
+    def test_carlierm5(self):
+        schdl = Schedule("./dane rpq/data005.txt")
+        schdl, cmax = carlier(schdl)
+        self.assertEqual(cmax, 3618)
 
-    # def test_carlierm6(self):
-    #     schdl = Schedule("./dane rpq/data006.txt")
-    #     schdl, cmax = carlier(schdl)
-    #     self.assertEqual(cmax, 3446)
-    #
-    # def test_carlierm7(self):
-    #     schdl = Schedule("./dane rpq/data007.txt")
-    #     schdl, cmax = carlier(schdl)
-    #     self.assertEqual(cmax, 3821)
-    #
-    # def test_carlierm8(self):
-    #     schdl = Schedule("./dane rpq/data008.txt")
-    #     schdl, cmax = carlier(schdl)
-    #     self.assertEqual(cmax, 3634)
+    def test_carlierm6(self):
+        schdl = Schedule("./dane rpq/data006.txt")
+        schdl, cmax = carlier(schdl)
+        self.assertEqual(cmax, 3446)
+
+    def test_carlierm7(self):
+        schdl = Schedule("./dane rpq/data007.txt")
+        schdl, cmax = carlier(schdl)
+        self.assertEqual(cmax, 3821)
+
+    def test_carlierm8(self):
+        schdl = Schedule("./dane rpq/data008.txt")
+        schdl, cmax = carlier(schdl)
+        self.assertEqual(cmax, 3634)
+
+
+if __name__ == '__main__':
+    unittest.main()
