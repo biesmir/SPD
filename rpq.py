@@ -1,13 +1,18 @@
 from random import randint
 from heap import HeapQ, HeapR
-import sys
+from carlier_vertex import Vertex
+import multiprocessing
+from queue import PriorityQueue
 
 
 class Job:
     def __init__(self, r: int, p: int, q: int, index=-1):
         self.r = r
+        self.r0 = r
         self.p = p
+        self.p0 = p
         self.q = q
+        self.q0 = q
         self.p_end_time = 0
         self.index = index
 
@@ -19,6 +24,11 @@ class Job:
 
     def __copy__(self):
         return Job(self.r, self.p, self.q, self.index)
+
+    def repair(self):
+        self.r = self.r0
+        self.p = self.p0
+        self.q = self.q0
 
 
 class Schedule:
@@ -55,6 +65,10 @@ class Schedule:
                 if line != '\n':
                     rpq_times = list(map(int, line.split()))
                     self.job_list.append(Job(r=rpq_times[0], p=rpq_times[1], q=rpq_times[2], index=i))
+
+    def repair(self):
+        for job in self.job_list:
+            job.repair()
 
 
 def schrage(schdl):
@@ -168,7 +182,7 @@ def schrage_pmtn_heap(schdl):
     return Cmax
 
 
-def carlier(schdl, ub=float("inf")):
+def carlier_old(schdl, ub=float("inf")):
 
     pi = schrage_heap(schdl.__copy__())
     u = pi.cmax()
@@ -250,88 +264,109 @@ def carlier(schdl, ub=float("inf")):
     return pi, ub
 
 
-def carlier_ext(schdl, ub=float("inf")):
-
-    pi = schrage_heap(schdl.__copy__())
+def carlier_ext(pqueue):
+    current_vertex = pqueue.get()
+    pi = schrage_heap(current_vertex.schdl)
     u = pi.cmax()
     i = -1
+    ub = min(current_vertex.ub, u)
+    try:
+        b = -1
+        while not (pi.job_list[i].p_end_time + pi.job_list[i].q == pi.cmax()):
+            i -= 1
+            b = i
 
-    if u < ub:
-        pi_star = pi
-        ub = u
-
-    b = -1
-    while not (pi.job_list[i].p_end_time + pi.job_list[i].q == pi.cmax()):
-        i -= 1
-        b = i
-
-    while pi.job_list[i-1].p_end_time == pi.job_list[i].p_end_time - pi.job_list[i].p:
-        i -= 1
-        a = i
-        if i == -len(pi.job_list):
-            break
-    i = b-1
-    c = 0
-    while not pi.job_list[b].q > pi.job_list[i].q and i > -len(pi.job_list):
-        i -= 1
-    if b != i > a:
-        c = i
+        while pi.job_list[i - 1].p_end_time == pi.job_list[i].p_end_time - pi.job_list[i].p:
+            i -= 1
+            a = i
+            if i == -len(pi.job_list):
+                break
+        i = b - 1
+        c = 0
+        while not pi.job_list[b].q > pi.job_list[i].q and i > -len(pi.job_list):
+            i -= 1
+        if b != i > a:
+            c = i
+    except UnboundLocalError:
+        # global end
+        # end = True
+        return pi
     if not c:
-        try:
-            return pi_star, ub
-        except NameError:
-            return pi, ub
+        # global end
+        # end = True
+        return pi
     if b != -1:
         k = pi.job_list[c:b + 1]
-        pik = pi.job_list[:c] + pi.job_list[b + 1:]
     else:
         k = pi.job_list[c:]
-        pik = pi.job_list[:c]
-
     rk = min(k, key=lambda x: x.r).r
     qk = min(k, key=lambda x: x.q).q
     pk = sum(elem.p for elem in k)
 
-    rc = pi.job_list[c].r
-    rpi = pi.job_list[c].index
-    tmp = max(pi.job_list[c].r, rk+pk)
-    pi.job_list[c].r = max(pi.job_list[c].r, rk+pk)
-    tmp = pi.job_list[c]
-
     hk = rk + pk + qk
-    k_c = pi.job_list[c-1:b+1]
+    k_c = pi.job_list[c - 1:b + 1]
 
     rk_c = min(k_c, key=lambda x: x.r).r
     qk_c = min(k_c, key=lambda x: x.q).q
     pk_c = sum(elem.p for elem in k_c)
     hk_c = rk_c + qk_c + pk_c
 
-    l = [i if i.p > (UB - hk) else [] for i in pik]
-
-    lb = schrage_pmtn_heap(pi.__copy__())
+    pi2 = pi.__copy__()
+    pi2.job_list[c].r = max(pi2.job_list[c].r, rk + pk)
+    lb = schrage_pmtn_heap(pi2.__copy__())
     lb = max(hk, hk_c, lb)
 
     if lb < ub:
-        pi, ub = carlier(pi, ub)
+        pqueue.put(item=Vertex(pi2, current_vertex.depth + 1, ub))
 
-    for job in pi.job_list:
-        if job.index == rpi:
-            job.r = rc
-            break
+    pi3 = pi.__copy__()
+    pi3.job_list[c].q = max(pi3.job_list[c].q, qk + pk)
 
-    qc = pi.job_list[c].q
-    qpi = pi.job_list[c].index
-    tmp = max(pi.job_list[c].q, qk + pk)
-    pi.job_list[c].q = max(pi.job_list[c].q, qk + pk)
-
-    lb = schrage_pmtn_heap(pi.__copy__())
+    lb = schrage_pmtn_heap(pi3.__copy__())
     lb = max(hk, hk_c, lb)
 
     if lb < ub:
-        pi, ub = carlier(pi, ub)
-    for job in pi.job_list:
-        if job.index == qpi:
-            job.q = qc
-            break
+        pqueue.put(item=Vertex(pi3, current_vertex.depth + 1, ub))
 
-    return pi, ub
+    nbk = pi.job_list[:c]+pi.job_list[b+1:]
+    job_i = None
+    for i in range(-len(pi.job_list), -1):
+        if pi.job_list[i].p > ub-hk and (i < c or i > b+1):
+            job_i = i
+            break
+    if job_i:
+        tmp = pi.job_list[job_i].r + pi.job_list[job_i].p + pk + pi.job_list[b].q
+        if pi.job_list[job_i].r + pi.job_list[job_i].p + pk + pi.job_list[b].q >= ub:
+            pi.job_list[job_i].r = max(pi.job_list[job_i].r, rk+pk)
+            pqueue.put(item=Vertex(pi, current_vertex.depth + 1, ub))
+        tmp = rk + pi.job_list[job_i].p + pk + pi.job_list[job_i].q
+        if rk + pi.job_list[job_i].p + pk + pi.job_list[job_i].q >= ub:
+            pi.job_list[job_i].q = max(pi.job_list[job_i].q, qk+pk)
+            pqueue.put(item=Vertex(pi, current_vertex.depth + 1, ub))
+
+    return
+
+
+def carlier_worker(pqueue):
+    global end
+    pi =None
+    while not pi:
+        pi = carlier_ext(pqueue)
+    pi.repair()
+    print(pi.cmax())
+
+
+def carlier_new(schdl, proc=1):
+
+    pqueue = PriorityQueue()
+    pqueue.put(item=Vertex(schdl, 0, float("inf")))
+
+    workers = []
+    for i in range(proc):
+        workers.append(multiprocessing.Process(target=carlier_worker, args=(pqueue,)))
+
+    for worker in workers:
+        worker.start()
+
+    for worker in workers:
+        worker.join()

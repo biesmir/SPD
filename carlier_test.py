@@ -1,4 +1,5 @@
-from rpq import *
+from rpq import carlier_new as carlier
+from rpq import Schedule
 import unittest
 
 
@@ -22,15 +23,15 @@ class CarlierTestIn(unittest.TestCase):
 
 class CarlierTestM(unittest.TestCase):
 
-    def test_carlierm1(self):
-        schdl = Schedule("./dane rpq/data001.txt")
-        schdl, cmax = carlier(schdl)
-        self.assertEqual(cmax, 3016)
-
     def test_carlierm0(self):
         schdl = Schedule("./dane rpq/data000.txt")
         schdl, cmax = carlier(schdl)
         self.assertEqual(cmax, 228)
+
+    def test_carlierm1(self):
+        schdl = Schedule("./dane rpq/data001.txt")
+        schdl, cmax = carlier(schdl)
+        self.assertEqual(cmax, 3016)
 
     def test_carlierm2(self):
         schdl = Schedule("./dane rpq/data002.txt")
