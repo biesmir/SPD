@@ -193,7 +193,7 @@ def schrage_pmtn_heap(schdl):
     return Cmax
 
 
-def carlier_old(schdl, ub=float("inf")):
+def carlier(schdl, ub=float("inf")):
 
     pi = schrage_heap(schdl.__copy__())
     u = pi.cmax()
@@ -227,7 +227,7 @@ def carlier_old(schdl, ub=float("inf")):
     if b != -1:
         k = pi.job_list[c:b + 1]
     else:
-        k = pi.job_list[c + 1:]
+        k = pi.job_list[c:]
     rk = min(k, key=lambda x: x.r).r
     qk = min(k, key=lambda x: x.q).q
     pk = sum(elem.p for elem in k)
@@ -281,41 +281,38 @@ def carlier_ext(pqueue):
     u = pi.cmax()
     i = -1
     ub = min(current_vertex.ub, u)
-    try:
-        b = -1
-        while not (pi.job_list[i].p_end_time + pi.job_list[i].q == pi.cmax()):
-            i -= 1
-            b = i
 
-        while pi.job_list[i - 1].p_end_time == pi.job_list[i].p_end_time - pi.job_list[i].p:
-            i -= 1
-            a = i
-            if i == -len(pi.job_list):
-                break
-        i = b - 1
-        c = 0
-        while not pi.job_list[b].q > pi.job_list[i].q and i > -len(pi.job_list):
-            i -= 1
-        if b != i > a:
-            c = i
-    except UnboundLocalError:
-        # global end
-        # end = True
-        return pi
+    b = -1
+    while not (pi.job_list[i].p_end_time + pi.job_list[i].q == pi.cmax()):
+        i -= 1
+        b = i
+    a = i
+    while pi.job_list[i - 1].p_end_time == pi.job_list[i].p_end_time - pi.job_list[i].p:
+        i -= 1
+        a = i
+        if i == -len(pi.job_list):
+            break
+    i = b - 1
+    c = 0
+    while not pi.job_list[b].q > pi.job_list[i].q and i > -len(pi.job_list):
+        i -= 1
+    if b != i > a:
+        c = i
+
     if not c:
-        # global end
-        # end = True
         return pi
+
     if b != -1:
-        k = pi.job_list[c:b + 1]
+        k = pi.job_list[c+1:b+1]
     else:
-        k = pi.job_list[c:]
+        k = pi.job_list[c+1:]
+
     rk = min(k, key=lambda x: x.r).r
     qk = min(k, key=lambda x: x.q).q
     pk = sum(elem.p for elem in k)
 
     hk = rk + pk + qk
-    k_c = pi.job_list[c - 1:b + 1]
+    k_c = pi.job_list[c:b + 1]
 
     rk_c = min(k_c, key=lambda x: x.r).r
     qk_c = min(k_c, key=lambda x: x.q).q
@@ -339,7 +336,6 @@ def carlier_ext(pqueue):
     if lb < ub:
         pqueue.put(item=Vertex(pi3, current_vertex.depth + 1, ub))
 
-    nbk = pi.job_list[:c]+pi.job_list[b+1:]
     job_i = None
     for i in range(-len(pi.job_list), -1):
         if pi.job_list[i].p > ub-hk and (i < c or i > b+1):
@@ -360,11 +356,13 @@ def carlier_ext(pqueue):
 
 def carlier_worker(pqueue):
     global end
-    pi =None
+    pi = None
     while not pi:
         pi = carlier_ext(pqueue)
     pi.repair()
-    # print(pi.cmax())
+    # print(pi.job_list)
+    print(pi.cmax())
+    return pi, pi.cmax()
     # print(len(pi.job_list))
     # print(len(set(pi.job_list)))
 
@@ -374,12 +372,14 @@ def carlier_new(schdl, proc=1):
     pqueue = PriorityQueue()
     pqueue.put(item=Vertex(schdl, 0, float("inf")))
 
-    workers = []
-    for i in range(proc):
-        workers.append(multiprocessing.Process(target=carlier_worker, args=(pqueue,)))
+    return carlier_worker(pqueue)
 
-    for worker in workers:
-        worker.start()
-
-    for worker in workers:
-        worker.join()
+    # workers = []
+    # for i in range(proc):
+    #     workers.append(multiprocessing.Process(target=carlier_worker, args=(pqueue,)))
+    #
+    # for worker in workers:
+    #     worker.start()
+    #
+    # for worker in workers:
+    #     worker.join()
