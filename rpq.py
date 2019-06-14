@@ -281,7 +281,9 @@ def carlier_ext(pqueue):
     u = pi.cmax()
     i = -1
     ub = min(current_vertex.ub, u)
-
+    # lb = schrage_pmtn_heap(pi.__copy__())
+    # if lb >= ub:
+    #     return
     b = -1
     while not (pi.job_list[i].p_end_time + pi.job_list[i].q == pi.cmax()):
         i -= 1
@@ -322,6 +324,8 @@ def carlier_ext(pqueue):
     pi2 = pi.__copy__()
     pi2.job_list[c].r = max(pi2.job_list[c].r, rk + pk)
     lb = schrage_pmtn_heap(pi2.__copy__())
+    # if lb >= ub:
+    #     return
     lb = max(hk, hk_c, lb)
 
     if lb < ub:
@@ -331,6 +335,8 @@ def carlier_ext(pqueue):
     pi3.job_list[c].q = max(pi3.job_list[c].q, pi3.job_list[b].q + pk)
 
     lb = schrage_pmtn_heap(pi3.__copy__())
+    # if lb >= ub:
+    #     return
     lb = max(hk, hk_c, lb)
 
     if lb < ub:
@@ -342,10 +348,17 @@ def carlier_ext(pqueue):
             job_i = i
             break
     if job_i:
-        tmp = pi.job_list[job_i].r + pi.job_list[job_i].p + pk + pi.job_list[b].q
         if pi.job_list[job_i].r + pi.job_list[job_i].p + pk + pi.job_list[b].q >= ub:
+            lb = schrage_pmtn_heap(pi.__copy__())
+            # if lb >= ub:
+            #     return
+            lb = max(hk, hk_c, lb)
             pi.job_list[job_i].r = max(pi.job_list[job_i].r, rk+pk)
         elif rk + pi.job_list[job_i].p + pk + pi.job_list[job_i].q >= ub:
+            lb = schrage_pmtn_heap(pi.__copy__())
+            # if lb >= ub:
+            #     return
+            lb = max(hk, hk_c, lb)
             pi.job_list[job_i].q = max(pi.job_list[job_i].q, qk+pk)
 
     if lb < ub:
@@ -372,14 +385,16 @@ def carlier_new(schdl, proc=1):
     pqueue = PriorityQueue()
     pqueue.put(item=Vertex(schdl, 0, 0, float("inf")))
 
-    return carlier_worker(pqueue)
+    if proc ==1:
+        return carlier_worker(pqueue)
+    else:
 
-    # workers = []
-    # for i in range(proc):
-    #     workers.append(multiprocessing.Process(target=carlier_worker, args=(pqueue,)))
-    #
-    # for worker in workers:
-    #     worker.start()
-    #
-    # for worker in workers:
-    #     worker.join()
+        workers = []
+        for i in range(proc):
+            workers.append(multiprocessing.Process(target=carlier_worker, args=(pqueue,)))
+
+        for worker in workers:
+            worker.start()
+
+        for worker in workers:
+            worker.join()
