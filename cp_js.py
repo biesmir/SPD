@@ -76,5 +76,5 @@ def cp_js(jobs, machines):
 
 
 if __name__ == '__main__':
-    jobs, machines = load_from_file("insa/data001.txt")
+    jobs, machines = load_from_file("insa/data002.txt")
     cp_js(jobs, machines)

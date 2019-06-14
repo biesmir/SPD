@@ -280,10 +280,8 @@ def carlier_ext(pqueue):
     pi = schrage_heap(current_vertex.schdl)
     u = pi.cmax()
     i = -1
-    ub = min(current_vertex.ub, u)
-    # lb = schrage_pmtn_heap(pi.__copy__())
-    # if lb >= ub:
-    #     return
+    lb = schrage_pmtn_heap(pi.__copy__())
+    ub = min(u, current_vertex.ub)
     b = -1
     while not (pi.job_list[i].p_end_time + pi.job_list[i].q == pi.cmax()):
         i -= 1
@@ -303,6 +301,8 @@ def carlier_ext(pqueue):
 
     if not c:
         return pi
+    if lb >= ub:
+        return
 
     if b != -1:
         k = pi.job_list[c+1:b+1]
@@ -342,27 +342,22 @@ def carlier_ext(pqueue):
     if lb < ub:
         pqueue.put(item=Vertex(pi3, current_vertex.depth + 1, lb, ub))
 
-    job_i = None
-    for i in range(-len(pi.job_list), -1):
-        if pi.job_list[i].p > ub-hk and (i < c or i > b+1):
-            job_i = i
-            break
-    if job_i:
-        if pi.job_list[job_i].r + pi.job_list[job_i].p + pk + pi.job_list[b].q >= ub:
-            lb = schrage_pmtn_heap(pi.__copy__())
-            # if lb >= ub:
-            #     return
-            lb = max(hk, hk_c, lb)
-            pi.job_list[job_i].r = max(pi.job_list[job_i].r, rk+pk)
-        elif rk + pi.job_list[job_i].p + pk + pi.job_list[job_i].q >= ub:
-            lb = schrage_pmtn_heap(pi.__copy__())
-            # if lb >= ub:
-            #     return
-            lb = max(hk, hk_c, lb)
-            pi.job_list[job_i].q = max(pi.job_list[job_i].q, qk+pk)
+    L = []
+    for i in range(-len(pi.job_list), 0):
+        if pi.job_list[i].p > ub-hk and (i < c+1 or i > b):
+            L.append(i)
+    if L:
+        for i in L:
+            if rk + pi.job_list[i].p + pk + pi.job_list[i].q >= ub:
+                pi.job_list[i].q = max(pi.job_list[i].q, qk+pk)
+            elif pi.job_list[i].r + pi.job_list[i].p + pk + pi.job_list[b].q >= ub:
+                pi.job_list[i].r = max(pi.job_list[i].r, rk+pk)
 
-    if lb < ub:
-        pqueue.put(item=Vertex(pi, current_vertex.depth + 1, lb, ub))
+        lb = schrage_pmtn_heap(pi.__copy__())
+        lb = max(hk, hk_c, lb)
+
+        if lb < ub:
+            pqueue.put(item=Vertex(pi, current_vertex.depth + 1, lb=lb, ub=ub))
     return
 
 
@@ -373,7 +368,7 @@ def carlier_worker(pqueue):
         pi = carlier_ext(pqueue)
     pi.repair()
     # print(pi.job_list)
-    print(pi.cmax())
+    # print(pi.cmax())
     return pi, pi.cmax()
     # print(len(pi.job_list))
     # print(len(set(pi.job_list)))
@@ -383,9 +378,9 @@ def carlier_new(schdl, proc=1):
 
     # pqueue = LifoQueue()
     pqueue = PriorityQueue()
-    pqueue.put(item=Vertex(schdl, 0, 0, float("inf")))
+    pqueue.put(item=Vertex(schdl, 0, lb=0, ub=float("inf")))
 
-    if proc ==1:
+    if proc == 1:
         return carlier_worker(pqueue)
     else:
 
