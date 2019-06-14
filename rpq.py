@@ -1,14 +1,31 @@
 from random import randint
 from heap import HeapQ, HeapR
+from carlier_vertex import Vertex
+import threading
+import multiprocessing
+from queue import PriorityQueue, LifoQueue
 
 
 class Job:
-    def __init__(self, r: int, p: int, q: int, index=-1):
-        self.r = r
-        self.p = p
-        self.q = q
-        self.p_end_time = 0
-        self.index = index
+    def __init__(self, r: int, p: int, q: int, index=-1, r0=-1, p0=-1, q0=-1):
+        if r0 < 0:
+            self.r = r
+            self.r0 = r
+            self.p = p
+            self.p0 = p
+            self.q = q
+            self.q0 = q
+            self.p_end_time = 0
+            self.index = index
+        else:
+            self.r = r
+            self.r0 = r0
+            self.p = p
+            self.p0 = p0
+            self.q = q
+            self.q0 = q0
+            self.p_end_time = 0
+            self.index = index
 
     def __str__(self):
         return "job" + str(self.index) + '\n'
@@ -17,7 +34,12 @@ class Job:
         return "job" + str(self.index) + '\n'
 
     def __copy__(self):
-        return Job(self.r, self.p, self.q, self.index)
+        return Job(self.r, self.p, self.q, self.index, self.r0, self.p0, self.q0)
+
+    def repair(self):
+        self.r = self.r0
+        self.p = self.p0
+        self.q = self.q0
 
 
 class Schedule:
@@ -32,7 +54,7 @@ class Schedule:
             for i in range(length):
                 self.job_list.append(Job(randint(1, 100), randint(1, 40), randint(1, 100), index=i))
             self.number_of_jobs = len(job_list)
-            
+
     def __copy__(self):
         return Schedule(job_list=[job.__copy__() for job in self.job_list])
 
@@ -54,6 +76,10 @@ class Schedule:
                 if line != '\n':
                     rpq_times = list(map(int, line.split()))
                     self.job_list.append(Job(r=rpq_times[0], p=rpq_times[1], q=rpq_times[2], index=i))
+
+    def repair(self):
+        for job in self.job_list:
+            job.repair()
 
 
 def schrage(schdl):
@@ -87,7 +113,6 @@ def schrage_pmtn(schdl):
     ng = Schedule(job_list=[])
     t = 0
     l = 0
-    q0 = 1e300*1e300
 
     while ng.job_list != [] or nn.job_list != []:
         while nn.job_list != [] and min(nn.job_list, key=lambda x: x.r).r <= t:
@@ -144,7 +169,6 @@ def schrage_pmtn_heap(schdl):
     ng = HeapQ()
     t = 0
     l = 0
-    q0 = 1e300 * 1e300
 
     while ng.array != [] or nn.array != []:
         while nn.array != [] and nn.array[0].r <= t:
@@ -158,6 +182,7 @@ def schrage_pmtn_heap(schdl):
 
                     if l.p > 0:
                         ng.push(l)
+
         if not ng.array:
             t = nn.array[0].r
         else:
@@ -166,3 +191,205 @@ def schrage_pmtn_heap(schdl):
             t += j.p
             Cmax = max(Cmax, t + j.q)
     return Cmax
+
+
+def carlier(schdl, ub=float("inf")):
+
+    pi = schrage_heap(schdl.__copy__())
+    u = pi.cmax()
+    i = -1
+
+    if u < ub:
+        pi_star = pi
+        ub = u
+
+    b = -1
+    while not (pi.job_list[i].p_end_time + pi.job_list[i].q == pi.cmax()):
+        i -= 1
+        b = i
+
+    while pi.job_list[i-1].p_end_time == pi.job_list[i].p_end_time - pi.job_list[i].p:
+        i -= 1
+        a = i
+        if i == -len(pi.job_list):
+            break
+    i = b-1
+    c = 0
+    while not pi.job_list[b].q > pi.job_list[i].q and i > -len(pi.job_list):
+        i -= 1
+    if b != i > a:
+        c = i
+    if not c:
+        try:
+            return pi_star, ub
+        except NameError:
+            return pi, ub
+    if b != -1:
+        k = pi.job_list[c:b + 1]
+    else:
+        k = pi.job_list[c:]
+    rk = min(k, key=lambda x: x.r).r
+    qk = min(k, key=lambda x: x.q).q
+    pk = sum(elem.p for elem in k)
+
+    rc = pi.job_list[c].r
+    rpi = pi.job_list[c].index
+    tmp = max(pi.job_list[c].r, rk+pk)
+    pi.job_list[c].r = max(pi.job_list[c].r, rk+pk)
+    tmp = pi.job_list[c]
+
+    hk = rk + pk + qk
+    k_c = pi.job_list[c-1:b+1]
+
+    rk_c = min(k_c, key=lambda x: x.r).r
+    qk_c = min(k_c, key=lambda x: x.q).q
+    pk_c = sum(elem.p for elem in k_c)
+    hk_c = rk_c + qk_c + pk_c
+
+    lb = schrage_pmtn_heap(pi.__copy__())
+    lb = max(hk, hk_c, lb)
+
+    if lb < ub:
+        pi, ub = carlier(pi, ub)
+
+    for job in pi.job_list:
+        if job.index == rpi:
+            job.r = rc
+            break
+
+    qc = pi.job_list[c].q
+    qpi = pi.job_list[c].index
+    tmp = max(pi.job_list[c].q, qk + pk)
+    pi.job_list[c].q = max(pi.job_list[c].q, qk + pk)
+
+    lb = schrage_pmtn_heap(pi.__copy__())
+    lb = max(hk, hk_c, lb)
+
+    if lb < ub:
+        pi, ub = carlier(pi, ub)
+    for job in pi.job_list:
+        if job.index == qpi:
+            job.q = qc
+            break
+
+    return pi, ub
+
+
+def carlier_ext(pqueue):
+    current_vertex = pqueue.get()
+    pi = schrage_heap(current_vertex.schdl)
+    u = pi.cmax()
+    i = -1
+    lb = schrage_pmtn_heap(pi.__copy__())
+    ub = min(u, current_vertex.ub)
+    b = -1
+    while not (pi.job_list[i].p_end_time + pi.job_list[i].q == pi.cmax()):
+        i -= 1
+        b = i
+    a = i
+    while pi.job_list[i - 1].p_end_time == pi.job_list[i].p_end_time - pi.job_list[i].p:
+        i -= 1
+        a = i
+        if i == -len(pi.job_list):
+            break
+    i = b - 1
+    c = 0
+    while not pi.job_list[b].q > pi.job_list[i].q and i > -len(pi.job_list):
+        i -= 1
+    if b != i > a:
+        c = i
+
+    if not c:
+        return pi
+    if lb >= ub:
+        return
+
+    if b != -1:
+        k = pi.job_list[c+1:b+1]
+    else:
+        k = pi.job_list[c+1:]
+
+    rk = min(k, key=lambda x: x.r).r
+    qk = min(k, key=lambda x: x.q).q
+    pk = sum(elem.p for elem in k)
+
+    hk = rk + pk + qk
+    k_c = pi.job_list[c:b + 1]
+
+    rk_c = min(k_c, key=lambda x: x.r).r
+    qk_c = min(k_c, key=lambda x: x.q).q
+    pk_c = sum(elem.p for elem in k_c)
+    hk_c = rk_c + qk_c + pk_c
+
+    pi2 = pi.__copy__()
+    pi2.job_list[c].r = max(pi2.job_list[c].r, rk + pk)
+    lb = schrage_pmtn_heap(pi2.__copy__())
+    # if lb >= ub:
+    #     return
+    lb = max(hk, hk_c, lb)
+
+    if lb < ub:
+        pqueue.put(item=Vertex(pi2, current_vertex.depth + 1, lb, ub))
+
+    pi3 = pi.__copy__()
+    pi3.job_list[c].q = max(pi3.job_list[c].q, pi3.job_list[b].q + pk)
+
+    lb = schrage_pmtn_heap(pi3.__copy__())
+    # if lb >= ub:
+    #     return
+    lb = max(hk, hk_c, lb)
+
+    if lb < ub:
+        pqueue.put(item=Vertex(pi3, current_vertex.depth + 1, lb, ub))
+
+    L = []
+    for i in range(-len(pi.job_list), 0):
+        if pi.job_list[i].p > ub-hk and (i < c+1 or i > b):
+            L.append(i)
+    if L:
+        for i in L:
+            if rk + pi.job_list[i].p + pk + pi.job_list[i].q >= ub:
+                pi.job_list[i].q = max(pi.job_list[i].q, qk+pk)
+            elif pi.job_list[i].r + pi.job_list[i].p + pk + pi.job_list[b].q >= ub:
+                pi.job_list[i].r = max(pi.job_list[i].r, rk+pk)
+
+        lb = schrage_pmtn_heap(pi.__copy__())
+        lb = max(hk, hk_c, lb)
+
+        if lb < ub:
+            pqueue.put(item=Vertex(pi, current_vertex.depth + 1, lb=lb, ub=ub))
+    return
+
+
+def carlier_worker(pqueue):
+    global end
+    pi = None
+    while not pi:
+        pi = carlier_ext(pqueue)
+    pi.repair()
+    # print(pi.job_list)
+    # print(pi.cmax())
+    return pi, pi.cmax()
+    # print(len(pi.job_list))
+    # print(len(set(pi.job_list)))
+
+
+def carlier_new(schdl, proc=1):
+
+    # pqueue = LifoQueue()
+    pqueue = PriorityQueue()
+    pqueue.put(item=Vertex(schdl, 0, lb=0, ub=float("inf")))
+
+    if proc == 1:
+        return carlier_worker(pqueue)
+    else:
+
+        workers = []
+        for i in range(proc):
+            workers.append(multiprocessing.Process(target=carlier_worker, args=(pqueue,)))
+
+        for worker in workers:
+            worker.start()
+
+        for worker in workers:
+            worker.join()
